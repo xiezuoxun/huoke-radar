@@ -1,0 +1,13 @@
+# 线索雷达 · 采集器依赖
+# ------------------------------------------------------------
+# 模式 mock / mediacrawler 只用标准库，不需要装任何依赖。
+# 模式 browser 需要 playwright（仅库本体，不需要浏览器内核）：
+playwright>=1.40
+
+# 说明：本采集器用两种方式复用你本机已登录的 Chrome
+#   1) CDP 连接（--enable_cdp，默认）—— 直接用你日常的 Chrome，不需要下载内核
+#   2) 持久化上下文（--no-cdp）—— 调用本机 Chrome（channel="chrome"），同样不需要内核
+# 所以 **不需要** 执行 `playwright install chromium`（那要下载几百 MB）。
+#
+# 装完依赖后，还要做一次登录初始化（见 README 第 2 步）：
+#   python init_session.py

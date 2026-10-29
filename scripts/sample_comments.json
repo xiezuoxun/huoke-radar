@@ -1,0 +1,39 @@
+{
+  "家具": {
+    "douyin": [
+      {"name": "一勺月光", "comment": "哪里有工厂直营门店？价格能便宜点吗", "note_title": "90平小三居家具搭配", "like": 12},
+      {"name": "海盐芝士_51", "comment": "双十一有什么优惠活动吗？想囤一套沙发", "note_title": "客厅家具选购攻略", "like": 33},
+      {"name": "今天也想退休", "comment": "已预约明天到店，帮我留一下那款餐桌", "note_title": "实木餐桌开箱", "like": 5},
+      {"name": "低电量青年", "comment": "这个博主拍得真好，学到了", "note_title": "家居好物分享", "like": 1},
+      {"name": "春日部快跑", "comment": "沙发坐深多少？客厅3.6米能放吗，求链接", "note_title": "小户型沙发推荐", "like": 8}
+    ],
+    "xiaohongshu": [
+      {"name": "人间清醒指南_94", "comment": "这套餐桌多少钱？链接发一下", "note_title": "原木风餐厅布置", "like": 22},
+      {"name": "爱吃宵夜的猫_17", "comment": "周末能去店里看下实物吗？想实地摸一下材质", "note_title": "家具探店日记", "like": 17},
+      {"name": "布丁不加糖", "comment": "有没有同城可以看样板的？私信我地址", "note_title": "婚房家具清单", "like": 4}
+    ]
+  },
+  "减脂": {
+    "douyin": [
+      {"name": "一杯冰美式", "comment": "私教一节课多少钱？第一次去有什么要求", "note_title": "减脂打卡第30天", "like": 41},
+      {"name": "减不动了", "comment": "有没有21天训练营？想报名", "note_title": "居家减脂跟练", "like": 26},
+      {"name": "今天不加班", "comment": "附近的门店在哪里？想过去看看环境", "note_title": "健身房测评", "like": 9},
+      {"name": "夜跑的猫", "comment": "减脂餐有代餐推荐吗，求食谱", "note_title": "健康饮食", "like": 3}
+    ],
+    "xiaohongshu": [
+      {"name": "三十七码", "comment": "有没有针对产后修复的课程？想报", "note_title": "产后恢复日记", "like": 15},
+      {"name": "小猪佩琪她姐", "comment": "教练是女教练吗？想约一对一，怎么收费", "note_title": "私教体验", "like": 11}
+    ]
+  },
+  "少儿编程": {
+    "xiaohongshu": [
+      {"name": "小满妈妈", "comment": "4岁半能学吗？课程怎么收费", "note_title": "鸡娃日常", "like": 30},
+      {"name": "甜甜圈不加糖", "comment": "报名有什么优惠？年卡多少钱", "note_title": "编程启蒙", "like": 18},
+      {"name": "阿May在带娃", "comment": "试听课怎么预约？想先让孩子体验一节", "note_title": "兴趣班测评", "like": 12}
+    ],
+    "douyin": [
+      {"name": "果果爸", "comment": "信奥赛路线怎么规划？有推荐的机构吗", "note_title": "升学规划", "like": 7},
+      {"name": "老王家的猫", "comment": "周末班还有名额吗？孩子三年级", "note_title": "少儿编程科普", "like": 5}
+    ]
+  }
+}

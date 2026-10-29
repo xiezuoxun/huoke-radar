@@ -1,0 +1,42 @@
+{
+  "keywords": [
+    "家具",
+    "减脂",
+    "少儿编程"
+  ],
+  "platforms": [
+    "douyin",
+    "xhs"
+  ],
+  "max_notes": 10,
+  "max_comments_per_note": 20,
+  "scroll_rounds": 10,
+  "page_timeout": 20000,
+  "headless": false,
+  "enable_cdp": true,
+  "cdp_port": 9222,
+  "user_data_dir": "./browser_data",
+  "output_dir": "./data",
+  "dedupe_mode": "exact",
+  "watch": {
+    "enabled": true,
+    "time": "09:30",
+    "mode": "browser",
+    "keywords": [
+      "家具",
+      "减脂",
+      "少儿编程"
+    ],
+    "platforms": [
+      "douyin",
+      "xhs"
+    ],
+    "headless": true,
+    "max_notes": 6,
+    "max_comments_per_note": 15,
+    "scroll_rounds": 8,
+    "dedupe_mode": "exact",
+    "enable_cdp": false
+  },
+  "compliance": "个人工作/学习/研究用途，禁止商用；仅采集公开可见评论，不获取手机号等隐私"
+}

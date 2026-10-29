@@ -1,0 +1,3965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>线索雷达 · AI 获客情报工具</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236d28d9'/%3E%3Ccircle cx='15' cy='15' r='6.5' fill='none' stroke='%23fff' stroke-width='2.4'/%3E%3Cpath d='M20 20l5 5' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<!-- 本工作台通过 WorkBuddy「资料库」skill 搭建、存储和部署 -->
+<style>
+/* ============================================================
+   温州移动 · 商机雷达  |  Design System v3
+   暗色作战舱（默认） + 浅色日光（可选）
+   令牌与 DESIGN.md 一一对应，改色只改 :root
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+/* 表单控件不吃 UA 默认字号（Chrome 按钮默认 13.33px，会破坏字号阶梯） */
+button,input,select,textarea{font:inherit;color:inherit}
+
+:root{
+  /* 画布 / 表面 */
+  --bg:#08070d;
+  --bg-grad:radial-gradient(1100px 620px at 12% -8%,rgba(139,92,246,.20),transparent 62%),
+            radial-gradient(900px 560px at 96% 4%,rgba(34,211,238,.13),transparent 58%);
+  --surface:#12101c;
+  --surface-2:#171523;
+  --surface-3:#1d1a2b;
+  --line:#272236;
+  --line-strong:#3a3350;
+
+  /* 文字 */
+  --ink:#f1eef9;
+  --ink-2:#c6c0d8;
+  --ink-3:#8b85a0;
+  --ink-inv:#0b0912;
+
+  /* 品牌 */
+  --brand:#8b5cf6;
+  --brand-2:#22d3ee;
+  --brand-deep:#6d28d9;
+  --brand-weak:rgba(139,92,246,.14);
+  --brand-line:rgba(139,92,246,.42);
+
+  /* 语义 */
+  --hot:#f87171;      --hot-weak:rgba(248,113,113,.13);   --hot-line:rgba(248,113,113,.35);
+  --warn:#fbbf24;     --warn-weak:rgba(251,191,36,.13);   --warn-line:rgba(251,191,36,.32);
+  --ok:#34d399;       --ok-weak:rgba(52,211,153,.13);     --ok-line:rgba(52,211,153,.32);
+  --info:#60a5fa;     --info-weak:rgba(96,165,250,.13);   --info-line:rgba(96,165,250,.32);
+
+  /* 结构 */
+  --r-xs:6px; --r-sm:9px; --r:12px; --r-lg:16px; --r-xl:20px; --full:999px;
+  --tap:44px;
+  --rail-w:216px;
+  --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 12px 28px -18px rgba(0,0,0,.9);
+  --shadow-lg:0 24px 60px -24px rgba(0,0,0,.92), 0 0 0 1px rgba(255,255,255,.04);
+  --focus:0 0 0 3px rgba(139,92,246,.28);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --f-display:26px; --f-h1:20px; --f-h2:15px; --f-body:14px;
+  --f-ui:13px; --f-cap:12px; --f-micro:11px; --f-input:16px;
+}
+
+[data-theme="light"]{
+  --bg:#f4f3f8;
+  --bg-grad:radial-gradient(1100px 620px at 10% -10%,rgba(139,92,246,.16),transparent 60%),
+            radial-gradient(900px 520px at 98% 0%,rgba(34,211,238,.12),transparent 55%);
+  --surface:#ffffff;
+  --surface-2:#faf9fd;
+  --surface-3:#f2f0f8;
+  --line:#e6e3ef;
+  --line-strong:#cfcada;
+
+  --ink:#14111f;
+  --ink-2:#4d4860;
+  --ink-3:#6f6a82;
+  --ink-inv:#ffffff;
+
+  --brand:#6d28d9;
+  --brand-2:#0e7490;
+  --brand-deep:#5b21b6;
+  --brand-weak:#f3eefe;
+  --brand-line:#ddd0fb;
+
+  --hot:#c0392b;      --hot-weak:#fdf1ef;   --hot-line:#f6d5d0;
+  --warn:#a15c00;     --warn-weak:#fff7e8;  --warn-line:#f7e2b8;
+  --ok:#0f7a4d;       --ok-weak:#ecfdf3;    --ok-line:#c4ead6;
+  --info:#1a5fb4;     --info-weak:#eff4fd;  --info-line:#cddff8;
+
+  --shadow:0 1px 2px rgba(20,17,31,.05), 0 8px 22px -14px rgba(20,17,31,.16);
+  --shadow-lg:0 24px 60px -24px rgba(20,17,31,.28), 0 0 0 1px rgba(20,17,31,.04);
+  --focus:0 0 0 3px rgba(109,40,217,.18);
+}
+
+/* 浅色下产品色作为文字太浅（3.2~3.8:1）：色只留在底纹与描边，文字回到墨色 */
+[data-theme="light"] .badge[style]{color:var(--ink) !important}
+
+body{
+  font:400 var(--f-body)/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);
+  background-image:var(--bg-grad);
+  background-attachment:fixed;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+button,input,select,textarea{font-family:inherit;color:inherit}
+option{font-size:var(--f-cap)}
+a{color:var(--brand-2);text-decoration:none}
+::selection{background:rgba(139,92,246,.34)}
+svg{display:block}
+
+/* 滚动条 */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px;border:3px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-track{background:transparent}
+
+/* ==================== 布局骨架 ==================== */
+.app{display:flex;min-height:100vh}
+
+.rail{
+  width:var(--rail-w);flex:none;position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;gap:6px;padding:18px 12px 14px;
+  background:linear-gradient(180deg,rgba(18,16,28,.96),rgba(12,10,20,.98));
+  border-right:1px solid var(--line);z-index:50;
+}
+[data-theme="light"] .rail{background:linear-gradient(180deg,#fff,#fbfaff)}
+
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px}
+.brand .logo{
+  width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--brand),var(--brand-deep));
+  box-shadow:0 8px 20px -8px rgba(139,92,246,.85),0 0 0 1px rgba(255,255,255,.10) inset;
+}
+.brand-txt b{display:block;font-size:var(--f-h2);font-weight:700;letter-spacing:.3px;line-height:1.2}
+.brand-txt i{display:block;font-style:normal;font-size:var(--f-micro);color:var(--ink-3);letter-spacing:.4px;margin-top:2px}
+
+.rail-sec{font-size:var(--f-micro);color:var(--ink-3);letter-spacing:1.2px;padding:12px 10px 6px;font-weight:600}
+
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav-item{
+  appearance:none;border:0;background:transparent;text-align:left;
+  display:flex;align-items:center;gap:10px;min-height:var(--tap);
+  padding:0 11px;border-radius:var(--r-sm);cursor:pointer;
+  font-size:var(--f-ui);font-weight:500;color:var(--ink-2);
+  transition:background .16s var(--ease),color .16s var(--ease);
+  position:relative;
+}
+.nav-item svg{width:17px;height:17px;flex:none;opacity:.75}
+.nav-item:hover{background:var(--surface-3);color:var(--ink)}
+.nav-item.active{
+  background:linear-gradient(90deg,var(--brand-weak),transparent 92%);
+  color:var(--ink);font-weight:650;
+}
+.nav-item.active::before{
+  content:"";position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,var(--brand),var(--brand-2));
+}
+.nav-item.active svg{opacity:1;color:var(--brand)}
+.nav-item u{
+  margin-left:auto;text-decoration:none;font-size:var(--f-micro);
+  color:var(--ink-3);font-variant-numeric:tabular-nums;font-weight:600;
+}
+
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.agent-pill{
+  display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--r-sm);
+  background:var(--surface-2);border:1px solid var(--line);min-height:var(--tap);
+}
+.agent-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex:none}
+.agent-pill.on .dot{background:var(--ok);box-shadow:0 0 0 4px var(--ok-weak)}
+.agent-pill.off .dot{background:var(--warn);box-shadow:0 0 0 4px var(--warn-weak)}
+.agent-pill .txt{font-size:var(--f-micro);line-height:1.35;color:var(--ink-2);min-width:0}
+.agent-pill .txt b{display:block;font-size:var(--f-cap);color:var(--ink);font-weight:600}
+.agent-pill button{
+  margin-left:auto;flex:none;appearance:none;border:0;background:transparent;
+  color:var(--brand-2);font-size:var(--f-micro);cursor:pointer;padding:0 8px;
+  min-height:36px;border-radius:var(--r-xs);
+}
+.agent-pill button:hover{background:var(--brand-weak);color:var(--brand)}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:14px;min-height:64px;padding:10px 22px;
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.page-title b{display:block;font-size:var(--f-h1);font-weight:700;letter-spacing:-.01em;line-height:1.25}
+.page-title span{display:block;font-size:var(--f-cap);color:var(--ink-3);margin-top:2px}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+.sync{
+  display:inline-flex;align-items:center;gap:6px;font-size:var(--f-cap);
+  color:var(--ink-2);padding:0 11px;height:34px;border-radius:var(--full);
+  background:var(--surface-2);border:1px solid var(--line);white-space:nowrap;
+}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-weak)}
+
+.icon-btn{
+  appearance:none;width:36px;height:36px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  display:grid;place-items:center;transition:.16s var(--ease);
+}
+.icon-btn:hover{color:var(--ink);border-color:var(--line-strong);background:var(--surface-3)}
+
+.wrap{max-width:1400px;width:100%;margin:0 auto;padding:20px 22px 60px}
+
+/* ==================== 页面 ==================== */
+.page{display:none}
+.page.active{display:block;animation:pageIn .34s var(--ease) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;align-items:flex-end;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.page-head h2{font-size:var(--f-h1);font-weight:700;margin:0;letter-spacing:-.01em}
+.page-head p{margin:2px 0 0;font-size:var(--f-cap);color:var(--ink-3)}
+.page-head .head-act{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* ==================== 面板 ==================== */
+.panel{
+  background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface) 88%,var(--bg)));
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.panel-head{
+  display:flex;align-items:center;gap:10px;padding:13px 16px;
+  border-bottom:1px solid var(--line);
+}
+.panel-head h3{
+  margin:0;font-size:var(--f-h2);font-weight:650;letter-spacing:-.005em;
+  display:flex;align-items:center;gap:8px;
+}
+.panel-head h3 svg{width:15px;height:15px;color:var(--brand)}
+.panel-head .sub{font-size:var(--f-micro);color:var(--ink-3)}
+.panel-head .act{margin-left:auto;display:flex;gap:6px;align-items:center}
+.panel-body{padding:16px}
+
+/* ==================== KPI 指标带 ==================== */
+.kpi-grid{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px;
+}
+.kpi{
+  position:relative;padding:13px 14px;border-radius:var(--r);overflow:hidden;
+  background:linear-gradient(165deg,var(--surface),color-mix(in srgb,var(--surface) 82%,var(--bg)));
+  border:1px solid var(--line);
+}
+.kpi::after{
+  content:"";position:absolute;inset:0 auto auto 0;width:100%;height:2px;
+  background:linear-gradient(90deg,var(--kc,var(--brand)),transparent 78%);opacity:.9;
+}
+.kpi .lb{font-size:var(--f-micro);color:var(--ink-3);display:flex;align-items:center;gap:5px;letter-spacing:.3px}
+.kpi .vl{
+  font-size:var(--f-display);font-weight:750;letter-spacing:-.03em;line-height:1.1;margin-top:6px;
+  font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:5px;
+}
+.kpi .vl em{font-style:normal;font-size:var(--f-cap);font-weight:600;color:var(--ink-3);letter-spacing:0}
+.kpi .ft{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:var(--f-micro);color:var(--ink-3)}
+.kpi .ft b{font-weight:600;color:var(--kc,var(--brand))}
+.spark{margin-left:auto;display:flex;align-items:flex-end;gap:2px;height:22px}
+.spark i{width:3px;border-radius:1px;background:var(--kc,var(--brand));opacity:.28}
+.spark i.hi{opacity:.95}
+
+/* ==================== 主内容网格 ==================== */
+.grid-2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px}
+.grid-2b{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
+
+/* ==================== 产品线卡片 ==================== */
+.prod-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.prod{
+  position:relative;padding:13px 14px 12px;border-radius:var(--r);cursor:pointer;
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:transform .18s var(--ease),border-color .18s,background .18s;
+  overflow:hidden;
+}
+.prod:hover{transform:translateY(-2px);border-color:var(--pc,var(--brand));background:var(--surface-3)}
+.prod::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pc,var(--brand));
+}
+.prod .pt{display:flex;align-items:center;gap:7px;font-size:var(--f-ui);font-weight:650}
+.prod .pt i{
+  width:22px;height:22px;border-radius:6px;display:grid;place-items:center;flex:none;
+  background:color-mix(in srgb,var(--pc,var(--brand)) 18%,transparent);color:var(--pc,var(--brand));
+  font-style:normal;font-size:var(--f-micro);font-weight:700;
+}
+.prod .pn{
+  font-size:var(--f-display);font-weight:750;letter-spacing:-.03em;margin-top:9px;line-height:1;
+  font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.prod .pn em{font-style:normal;font-size:var(--f-micro);font-weight:500;color:var(--ink-3);margin-left:4px;letter-spacing:0}
+.prod .pb{height:4px;border-radius:99px;background:var(--surface-3);margin-top:9px;overflow:hidden}
+.prod .pb i{display:block;height:100%;border-radius:99px;background:var(--pc,var(--brand));transition:width .5s var(--ease)}
+.prod .pf{display:flex;align-items:center;justify-content:space-between;margin-top:7px;font-size:var(--f-micro);color:var(--ink-3)}
+.prod .pf b{color:var(--hot);font-weight:600;font-variant-numeric:tabular-nums}
+.prod .psub{
+  margin-top:6px;font-size:var(--f-micro);color:var(--ink-3);line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.prod .psub b{color:var(--ink-2);font-weight:500}
+
+/* ==================== 漏斗 ==================== */
+.funnel{display:flex;flex-direction:column;gap:7px}
+.fn-row{display:flex;align-items:center;gap:10px;font-size:var(--f-cap)}
+.fn-row .fn-lb{width:58px;flex:none;color:var(--ink-2);font-weight:500}
+.fn-bar{flex:1;height:26px;border-radius:var(--r-xs);background:var(--surface-3);overflow:hidden;position:relative}
+.fn-bar i{
+  display:block;height:100%;border-radius:var(--r-xs);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--fc,var(--brand)) 82%,transparent),var(--fc,var(--brand)));
+  transition:width .6s var(--ease);
+}
+.fn-row .fn-v{width:64px;flex:none;text-align:right;font-variant-numeric:tabular-nums;font-weight:650;color:var(--ink)}
+.fn-row .fn-v em{font-style:normal;font-size:var(--f-micro);color:var(--ink-3);margin-left:3px;font-weight:500}
+
+/* ==================== 平台矩阵 ==================== */
+.plat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.plat-cell{
+  display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--r-sm);
+  background:var(--surface-2);border:1px solid var(--line);min-height:44px;
+}
+.plat-cell .pd{width:8px;height:8px;border-radius:3px;flex:none;box-shadow:0 0 8px -1px currentColor}
+.plat-cell .pname{font-size:var(--f-cap);color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plat-cell .pnum{margin-left:auto;font-size:var(--f-ui);font-weight:700;font-variant-numeric:tabular-nums}
+.plat-cell.off{opacity:.45}
+.plat-cell.off .pnum{color:var(--ink-3);font-weight:500}
+
+/* ==================== 渠道账号 / 登录 ==================== */
+.lg-row{display:flex;align-items:flex-start;gap:9px;padding:10px 0;border-bottom:1px solid var(--line)}
+.lg-row:last-child{border-bottom:0}
+.lg-dot{width:7px;height:7px;border-radius:2px;margin-top:7px;flex:none}
+.lg-main{flex:1;min-width:0}
+.lg-t{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lg-t b{font-size:var(--f-ui);font-weight:650;color:var(--ink)}
+.lg-needtx{font-size:var(--f-micro);color:var(--warn);font-weight:650}
+.lg-sub{font-size:var(--f-micro);color:var(--ink-2);line-height:1.55;margin-top:3px}
+.lg-btn{
+  flex:none;min-height:32px;padding:0 11px;border-radius:var(--r-xs);cursor:pointer;
+  font-size:var(--f-cap);font-weight:600;font-family:inherit;
+  background:var(--surface-3);border:1px solid var(--line);color:var(--ink-2);
+  transition:background .16s,border-color .16s,color .16s;
+}
+.lg-btn:hover{background:var(--brand-weak);border-color:var(--brand);color:var(--ink)}
+.lg-btn.lg-need{border-color:var(--warn-line);color:var(--warn)}
+.lg-btn.lg-ok{background:var(--ok-weak);border-color:var(--ok-line);color:var(--ok)}
+
+/* 轻量确认弹窗 */
+.cfm-mask{
+  position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:20px;
+  background:rgba(4,3,9,.62);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .2s var(--ease);
+}
+.cfm-mask.show{opacity:1;pointer-events:auto}
+.cfm{
+  width:min(410px,100%);padding:18px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--line-strong,var(--line));box-shadow:var(--shadow-lg);
+  transform:translateY(10px) scale(.99);transition:transform .24s var(--ease);
+}
+.cfm-mask.show .cfm{transform:none}
+.cfm h4{margin:0 0 7px;font-size:var(--f-h2);font-weight:700;color:var(--ink);line-height:1.3}
+.cfm p{margin:0 0 16px;font-size:var(--f-body);color:var(--ink-2);line-height:1.6}
+.cfm-act{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.cfm-act button{
+  min-height:38px;padding:0 15px;border-radius:var(--r-xs);cursor:pointer;
+  font-size:var(--f-cap);font-weight:650;font-family:inherit;
+  background:var(--surface-3);border:1px solid var(--line);color:var(--ink-2);
+}
+.cfm-act button.pri{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.cfm-act button:hover{filter:brightness(1.08)}
+
+/* ==================== 地域热力 ==================== */
+.heat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.heat-cell{
+  position:relative;padding:10px 11px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid var(--line);background:var(--hc,var(--surface-2));
+  transition:transform .16s var(--ease),border-color .16s;
+  display:flex;flex-direction:column;gap:2px;min-height:64px;
+}
+.heat-cell:hover{transform:translateY(-1px);border-color:var(--brand-line)}
+.heat-cell b{font-size:var(--f-ui);font-weight:650;color:var(--ink)}
+.heat-cell .hn{font-size:var(--f-micro);color:var(--ink);font-variant-numeric:tabular-nums;opacity:.92}
+.heat-cell .hv{
+  margin-top:auto;font-size:var(--f-h2);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+  color:var(--ink);
+}
+.heat-legend{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:var(--f-micro);color:var(--ink-3)}
+.heat-legend i{width:14px;height:8px;border-radius:2px;display:block}
+
+/* ==================== 表格 ==================== */
+.tbl{width:100%}
+.tr{
+  display:grid;align-items:center;gap:10px;padding:0 14px;min-height:52px;
+  border-bottom:1px solid var(--line);
+}
+.tr:last-child{border-bottom:0}
+.tr.th{min-height:38px;background:var(--surface-2);font-size:var(--f-micro);color:var(--ink-3);letter-spacing:.4px;font-weight:600}
+.tr.clickable{cursor:pointer;transition:background .14s}
+.tr.clickable:hover{background:var(--surface-2)}
+.tr.clickable:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.td{min-width:0;font-size:var(--f-ui);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tbl-task .tr{grid-template-columns:minmax(120px,1.2fr) minmax(120px,1fr) 74px 74px 62px 68px 74px}
+.tbl-lead .tr{grid-template-columns:158px 84px minmax(200px,2.6fr) 78px 78px 78px 88px}
+.tbl-task .tr .td:nth-child(n+3):nth-child(-n+6){text-align:right}
+.tbl-task .tr .td:nth-child(n+3):nth-child(-n+6) .badge{margin-left:auto}
+.who-cell{display:flex;align-items:center;gap:7px;min-width:0}
+.who-cell b{
+  font-weight:600;color:var(--ink);font-size:var(--f-ui);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.avatar{
+  width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;
+  color:#fff;font-size:var(--f-micro);font-weight:700;letter-spacing:.2px;
+}
+.plat{display:inline-flex;align-items:center;gap:5px;font-size:var(--f-cap);color:var(--ink-2);white-space:nowrap}
+.plat .pd{width:6px;height:6px;border-radius:2px;flex:none}
+.cmt{
+  font-size:var(--f-cap);line-height:1.5;color:var(--ink);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.cmt mark{background:color-mix(in srgb,var(--brand) 26%,transparent);color:var(--ink);border-radius:3px;padding:0 2px}
+.ellip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b-new{
+  font-size:10px;line-height:1.2;font-weight:800;letter-spacing:.6px;padding:2px 5px;border-radius:4px;
+  background:var(--brand-deep);color:#fff;flex:none;
+}
+
+/* ==================== 徽章 ==================== */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;font-size:var(--f-micro);line-height:1;
+  font-weight:650;padding:5px 7px;border-radius:var(--r-xs);white-space:nowrap;
+  border:1px solid transparent;font-variant-numeric:tabular-nums;
+}
+.b-high{background:var(--hot-weak);color:var(--hot);border-color:var(--hot-line)}
+.b-mid{background:var(--warn-weak);color:var(--warn);border-color:var(--warn-line)}
+.b-low{background:var(--surface-3);color:var(--ink-2);border-color:var(--line)}
+.b-done{background:var(--ok-weak);color:var(--ok);border-color:var(--ok-line)}
+.b-follow{background:var(--info-weak);color:var(--info);border-color:var(--info-line)}
+.b-invalid{background:var(--surface-3);color:var(--ink-3);border-color:var(--line)}
+.overtag{background:transparent;color:var(--warn);border-color:var(--warn-line);font-weight:600}
+.b-tag{background:var(--brand-weak);color:var(--brand);border-color:var(--brand-line)}
+
+/* ==================== 按钮 ==================== */
+.btn-primary{
+  appearance:none;border:0;border-radius:var(--r);cursor:pointer;
+  min-height:var(--tap);min-width:116px;padding:0 22px;
+  font-size:var(--f-body);font-weight:650;letter-spacing:.2px;
+  color:#fff;background:linear-gradient(135deg,#7c3aed,var(--brand-deep));
+  box-shadow:0 10px 24px -12px rgba(139,92,246,.9),0 0 0 1px rgba(255,255,255,.09) inset;
+  transition:transform .14s var(--ease),filter .14s,box-shadow .14s;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn-primary:hover{filter:brightness(1.09);transform:translateY(-1px)}
+.btn-primary:active{transform:none}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none;filter:none}
+.btn-primary:focus-visible{outline:0;box-shadow:var(--focus),0 10px 24px -12px rgba(139,92,246,.9)}
+
+.mini-btn{
+  appearance:none;border-radius:var(--r-sm);cursor:pointer;
+  font-size:var(--f-cap);font-weight:500;padding:0 12px;min-height:36px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  transition:.15s var(--ease);display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.mini-btn:hover{color:var(--ink);border-color:var(--line-strong);background:var(--surface-3)}
+.mini-btn:focus-visible{outline:0;box-shadow:var(--focus)}
+.mini-btn.solid{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;font-weight:600}
+.mini-btn.solid:hover{filter:brightness(1.1)}
+.mini-btn.ghost{background:transparent}
+.link-btn{
+  appearance:none;border:0;background:transparent;color:var(--brand-2);cursor:pointer;
+  font-size:var(--f-cap);font-weight:600;display:inline-flex;align-items:center;gap:3px;
+  min-height:36px;padding:0 6px;border-radius:var(--r-xs);
+}
+.link-btn:hover{color:var(--brand)}
+
+/* ==================== 命令条 / 采集 ==================== */
+.cmd{
+  background:linear-gradient(160deg,var(--surface),color-mix(in srgb,var(--surface) 86%,var(--bg)));
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow);
+}
+.cmd-top{display:flex;gap:9px;align-items:stretch}
+.cmd-field{
+  flex:1;min-width:0;display:flex;align-items:center;gap:9px;
+  border:1px solid var(--line-strong);border-radius:var(--r);background:var(--bg);
+  padding:0 13px;transition:border-color .16s,box-shadow .16s;
+}
+.cmd-field:focus-within{border-color:var(--brand);box-shadow:var(--focus)}
+.cmd-field .sb-ico{display:flex;color:var(--ink-3);flex:none}
+.cmd-field input{
+  flex:1;min-width:0;border:0;background:transparent;outline:0;
+  font-size:var(--f-input);line-height:1.4;height:46px;color:var(--ink);
+}
+.cmd-field input::placeholder{color:var(--ink-3)}
+
+/* 采集选项区 */
+.opt-row{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap;align-items:flex-start}
+.opt-block{flex:1;min-width:220px}
+.opt-lb{
+  display:flex;align-items:center;gap:6px;font-size:var(--f-micro);color:var(--ink-3);
+  letter-spacing:.4px;margin-bottom:7px;font-weight:600;
+}
+.opt-lb em{font-style:normal;color:var(--brand);font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+
+.chip{
+  appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  font-size:var(--f-cap);font-weight:500;padding:0 12px;min-height:36px;border-radius:var(--full);
+  cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+  transition:.15s var(--ease);white-space:nowrap;
+}
+.chip:hover{border-color:var(--brand-line);color:var(--ink)}
+.chip:focus-visible{outline:0;box-shadow:var(--focus)}
+.chip.on{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;font-weight:600}
+.chip.on .pd{background:#fff !important}
+.chip .pd{width:6px;height:6px;border-radius:2px;flex:none}
+.chip .cnt{font-size:10px;opacity:.65;font-variant-numeric:tabular-nums}
+.chip.pr[data-prod]::before{content:"";width:6px;height:6px;border-radius:2px;background:var(--pc,var(--brand))}
+.chip.off{opacity:.5}
+
+.agent-bar{
+  display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;
+  border-top:1px dashed var(--line);font-size:var(--f-cap);color:var(--ink-3);flex-wrap:wrap;
+}
+.agent-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex:none}
+.agent-dot.ok{background:var(--ok);box-shadow:0 0 0 4px var(--ok-weak)}
+.agent-dot.bad{background:var(--warn);box-shadow:0 0 0 4px var(--warn-weak)}
+.agent-txt{min-width:0}
+.agent-bar .mini-btn{margin-left:auto;min-height:34px}
+
+/* ==================== 运行控制台 ==================== */
+.chat{display:flex;flex-direction:column;min-height:320px}
+.chat-head{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line)}
+.chat-head .avatar-bot{
+  width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--brand),var(--brand-deep));
+  box-shadow:0 6px 16px -8px rgba(139,92,246,.9);
+}
+.chat-head b{display:block;font-size:var(--f-ui);font-weight:650;line-height:1.3}
+.status-on{display:inline-flex;align-items:center;gap:4px;font-size:var(--f-micro);color:var(--ok);margin-top:1px}
+.grow{flex:1;min-width:0}
+
+.chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;max-height:460px}
+.msg{display:flex;gap:8px}
+.msg.user{justify-content:flex-end}
+.bubble{
+  max-width:92%;padding:10px 13px;border-radius:var(--r);font-size:var(--f-cap);line-height:1.6;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.msg.user .bubble{background:linear-gradient(135deg,var(--brand),var(--brand-deep));color:#fff;border-color:transparent}
+.bubble b{font-weight:650}
+
+.steps{display:flex;flex-direction:column;gap:1px;margin-top:9px}
+.step{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:var(--f-cap)}
+.step .ico{
+  width:14px;height:14px;border-radius:50%;flex:none;margin-top:2px;
+  border:1.5px solid var(--line-strong);background:transparent;
+  display:grid;place-items:center;transition:.2s;
+}
+.step.run .ico{border-color:var(--brand);border-top-color:transparent;animation:spin .8s linear infinite}
+.step.done .ico{background:var(--ok);border-color:var(--ok)}
+.step.fail .ico{background:var(--hot);border-color:var(--hot)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.step .txt{min-width:0;font-size:var(--f-cap);line-height:1.45}
+.step .txt strong{font-weight:600;color:var(--ink);font-size:var(--f-cap)}
+.step .txt i{display:block;font-style:normal;font-size:var(--f-micro);color:var(--ink-3);margin-top:1px}
+.bar-wrap{height:4px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin:9px 0 3px}
+.bar{height:100%;width:2%;border-radius:99px;background:linear-gradient(90deg,var(--brand),var(--brand-2));transition:width .4s var(--ease)}
+
+.live-log{display:none;margin-top:9px;max-height:150px;overflow-y:auto;
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 10px;
+  font:400 var(--f-micro)/1.75 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink-2);
+}
+.live-log.on{display:block}
+.live-log div{word-break:break-all}
+
+/* ==================== 今日待跟进 ==================== */
+.today-list{display:flex;flex-direction:column}
+.today-item{
+  display:flex;align-items:center;gap:9px;padding:11px 14px;
+  border-bottom:1px solid var(--line);cursor:pointer;transition:background .14s;
+}
+.today-item:last-child{border-bottom:0}
+.today-item:hover{background:var(--surface-2)}
+.today-item .who{flex:1;min-width:0}
+.ti-name{display:flex;align-items:center;gap:5px;min-width:0}
+.ti-name b{font-size:var(--f-ui);font-weight:600;color:var(--ink);line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ti-cmt{display:block;font-size:var(--f-micro);color:var(--ink-3);line-height:1.45;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.ti-act{display:flex;align-items:center;gap:2px;flex:none}
+.ti-done{
+  appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink-3);
+  font-size:var(--f-micro);font-weight:600;height:34px;padding:0 9px;border-radius:var(--r-xs);
+  cursor:pointer;transition:.15s;
+}
+.ti-done:hover{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+.ti-more{
+  appearance:none;border:0;background:transparent;color:var(--ink-3);
+  font-size:var(--f-micro);font-weight:600;height:36px;padding:0 8px;border-radius:var(--r-xs);cursor:pointer;
+}
+.ti-more:hover{color:var(--brand);background:var(--brand-weak)}
+
+/* ==================== Tabs / 筛选 ==================== */
+.tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:10px;margin-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  font-size:var(--f-cap);font-weight:500;padding:0 13px;min-height:36px;border-radius:var(--full);
+  cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;transition:.15s;
+}
+.tab:hover{border-color:var(--brand-line);color:var(--ink)}
+.tab.active{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;font-weight:600}
+.tab u{text-decoration:none;font-size:var(--f-micro);opacity:.72;font-variant-numeric:tabular-nums}
+.tab.active u{opacity:.9}
+
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.filters select{
+  appearance:none;border:1px solid var(--line-strong);border-radius:var(--r-sm);
+  background:var(--surface-2) url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b85a0' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+  font-size:var(--f-input);color:var(--ink);padding:0 30px 0 12px;min-height:40px;cursor:pointer;
+  font-variant-numeric:tabular-nums;
+}
+.filters select:hover{border-color:var(--line-strong);background-color:var(--surface-3)}
+.filters select:focus-visible{outline:0;box-shadow:var(--focus)}
+.search{
+  flex:1;min-width:180px;display:flex;align-items:center;gap:7px;
+  border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--surface-2);
+  padding:0 12px;transition:border-color .16s,box-shadow .16s;
+}
+.search:focus-within{border-color:var(--brand);box-shadow:var(--focus)}
+.search input{flex:1;min-width:0;border:0;background:transparent;outline:0;
+  font-size:var(--f-input);height:40px;color:var(--ink)}
+.search input::placeholder{color:var(--ink-3);font-size:var(--f-cap)}
+
+/* ==================== 空态 ==================== */
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  padding:38px 16px;text-align:center;
+}
+.empty b{font-size:var(--f-body);color:var(--ink-2);font-weight:600}
+.empty span{font-size:var(--f-cap);color:var(--ink-3);max-width:36ch;line-height:1.55}
+.empty .empty-ico{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:4px;
+  background:var(--brand-weak);color:var(--brand);
+}
+
+/* ==================== 侧滑抽屉 ==================== */
+.mask{
+  position:fixed;inset:0;background:rgba(4,3,9,.62);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .22s var(--ease);z-index:80;
+}
+.mask.show{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:10px;right:10px;bottom:10px;width:460px;max-width:calc(100vw - 20px);
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-lg);z-index:90;display:flex;flex-direction:column;
+  transform:translateX(calc(100% + 24px));transition:transform .26s var(--ease);
+}
+.drawer.show{transform:none}
+.dw-head{display:flex;align-items:flex-start;gap:10px;padding:16px 16px 13px;border-bottom:1px solid var(--line)}
+.dw-head b{display:block;font-size:var(--f-h2);font-weight:650;line-height:1.35}
+.dw-head span{display:block;font-size:var(--f-micro);color:var(--ink-3);margin-top:2px}
+.dw-body{flex:1;overflow-y:auto;padding:16px}
+.dw-foot{
+  display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line);
+  background:var(--surface-2);
+}
+.dw-foot .btn-primary{flex:1;min-width:0}
+.dw-sec{margin-bottom:16px}
+.dw-sec h4{font-size:var(--f-micro);font-weight:650;color:var(--ink-3);letter-spacing:.6px;margin:0 0 8px}
+.dw-kv{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;font-size:var(--f-cap)}
+.dw-kv dt{color:var(--ink-3);font-size:var(--f-cap)}
+.dw-kv dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums;word-break:break-all}
+.dw-textarea{
+  width:100%;border:1px solid var(--line-strong);border-radius:var(--r);
+  background:var(--bg);padding:10px 12px;font-size:var(--f-input);line-height:1.6;
+  color:var(--ink);resize:vertical;outline:0;transition:border-color .16s,box-shadow .16s;
+}
+.dw-textarea:focus{border-color:var(--brand);box-shadow:var(--focus)}
+.fchip{
+  appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  font-size:var(--f-cap);padding:0 12px;min-height:34px;border-radius:var(--full);
+  cursor:pointer;transition:.15s;
+}
+.fchip.on{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;font-weight:600}
+
+/* ==================== Toast ==================== */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,12px);
+  background:var(--ink);color:var(--ink-inv);font-size:var(--f-cap);font-weight:500;
+  padding:11px 20px;border-radius:var(--full);box-shadow:var(--shadow-lg);
+  opacity:0;pointer-events:none;transition:.22s var(--ease);z-index:120;
+  max-width:min(90vw,460px);text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ==================== 话术卡 ==================== */
+.script-list{display:flex;flex-direction:column;gap:9px}
+.script{
+  padding:12px 13px;border-radius:var(--r);background:var(--surface-2);
+  border:1px solid var(--line);border-left:3px solid var(--pc,var(--brand));
+}
+.script .sc-h{display:flex;align-items:center;gap:7px;font-size:var(--f-cap);font-weight:650;margin-bottom:6px}
+.script .sc-h span{font-size:var(--f-micro);color:var(--ink-3);font-weight:500}
+.script p{margin:0;font-size:var(--f-cap);line-height:1.65;color:var(--ink-2)}
+.script .sc-copy{margin-left:auto}
+
+/* ==================== 数据条 ==================== */
+.databar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;
+  padding:10px 12px;border-radius:var(--r);background:var(--surface-2);border:1px dashed var(--line);
+}
+.databar .muted{font-size:var(--f-micro);color:var(--ink-3);margin-right:2px}
+.muted{color:var(--ink-3)}
+.env-note{
+  font-size:var(--f-micro);color:var(--ink-3);margin-top:9px;line-height:1.65;
+}
+
+/* ==================== 迷你统计 ==================== */
+.livebar{display:flex;align-items:center;gap:16px;padding:12px 15px;flex-wrap:wrap}
+.live-left{display:flex;align-items:center;gap:9px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px var(--ok-weak);flex:none;
+  animation:pulse 2.4s var(--ease) infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px var(--ok-weak)}50%{box-shadow:0 0 0 7px transparent}}
+.live-left b{display:block;font-size:var(--f-ui);font-weight:650;line-height:1.3}
+.live-left i{display:block;font-style:normal;font-size:var(--f-micro);color:var(--ink-3);margin-top:1px}
+.live-stats{display:flex;gap:20px;margin-left:auto;flex-wrap:wrap}
+.live-stats > div{text-align:right}
+.live-stats b{font-size:var(--f-h2);line-height:1.2;font-weight:750;font-variant-numeric:tabular-nums;display:block}
+.live-stats span{font-size:var(--f-micro);color:var(--ink-3)}
+.c-purple{color:var(--brand)} .c-green{color:var(--ok)} .c-red{color:var(--hot)}
+.c-orange{color:var(--warn)} .c-blue{color:var(--info)} .c-cyan{color:var(--brand-2)}
+
+/* ==================== 响应式 ==================== */
+@media (max-width:1200px){
+  .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .prod-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .grid-2,.grid-2b{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:1080px){
+  :root{--rail-w:72px}
+  .rail{padding:16px 8px}
+  .brand{padding:4px 4px 14px;justify-content:center}
+  .brand-txt{display:none}
+  .rail-sec{display:none}
+  .nav-item{justify-content:center;padding:0 6px}
+  .nav-item span.nav-tx{display:none}
+  .nav-item u{display:none}
+  .nav-item.active::before{display:none}
+  .rail-foot .agent-pill{padding:8px;justify-content:center}
+  .agent-pill .txt,.agent-pill button{display:none}
+}
+@media (max-width:860px){
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .prod-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .plat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .heat{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:768px){
+  :root{--rail-w:0px;--f-display:24px;--f-h1:18px}
+  .app{display:block}
+  .rail{
+    position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;height:auto;
+    flex-direction:row;gap:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    border-right:0;border-top:1px solid var(--line);background:var(--surface);z-index:70;
+    overflow-x:auto;scrollbar-width:none;
+  }
+  .rail::-webkit-scrollbar{display:none}
+  .brand,.rail-sec,.rail-foot{display:none}
+  .nav{flex-direction:row;flex:1;gap:2px}
+  .nav-item{
+    flex:1 0 auto;flex-direction:column;gap:3px;min-height:52px;padding:5px 8px;
+    font-size:var(--f-micro);justify-content:center;
+  }
+  .nav-item svg{width:18px;height:18px}
+  .nav-item span.nav-tx{display:block}
+  .nav-item u{display:none}
+  .nav-item.active::before{display:none}
+  .topbar{padding:9px 12px;min-height:58px;gap:8px}
+  .page-title span{display:none}
+  .sync{display:none}
+  .wrap{padding:14px 12px calc(78px + env(safe-area-inset-bottom))}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .prod-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .plat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .heat{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .panel-head{padding:11px 12px}
+  .panel-body{padding:12px}
+  .cmd{padding:12px}
+  .cmd-top{flex-wrap:wrap}
+  .cmd-field{flex:1 1 100%}
+  .btn-primary{flex:1 1 100%;min-width:0}
+  .opt-block{min-width:100%}
+  .chip{min-height:44px;padding:0 14px;font-size:var(--f-ui)}
+  .tab{min-height:44px}
+  .filters select{min-height:44px}
+  .link-btn,.ti-done,.ti-more,.sc-copy,.agent-bar .mini-btn,.mini-btn,.icon-btn,.lg-btn,.cfm-act button{min-height:44px}
+  .opt-lb{margin-bottom:8px}
+  .search{flex:1 1 100%}
+  .filters .mini-btn{min-height:44px}
+  .live-stats{margin-left:0;width:100%;justify-content:space-between;gap:8px}
+  .live-stats > div{text-align:left}
+  .chat-body{max-height:400px;padding:12px}
+  .drawer{top:auto;right:0;left:0;bottom:0;width:100%;max-width:100%;
+    border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:88vh;transform:translateY(100%)}
+  .drawer.show{transform:none}
+  .dw-foot{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .tr{gap:6px;padding:0 12px}
+  /* 表格退化：首列独占一行 */
+  .tbl-lead .tr{grid-template-columns:minmax(0,1fr) auto auto;row-gap:4px;padding:11px 12px}
+  .tbl-lead .tr.th{display:none}
+  .tbl-lead .tr .td:first-child{grid-column:1;font-size:var(--f-body)}
+  .tbl-lead .tr .td:nth-child(2),
+  .tbl-lead .tr .td:nth-child(4),
+  .tbl-lead .tr .td:nth-child(5){display:none}
+  .tbl-lead .tr .td:nth-child(3){grid-column:1 / -1;padding-top:2px}
+  .tbl-lead .tr .td:nth-child(6){grid-column:2;justify-self:end}
+  .tbl-lead .tr .td:nth-child(7){grid-column:3;justify-self:end}
+  .tbl-task .tr{grid-template-columns:minmax(0,1fr) auto auto;row-gap:3px;padding:11px 12px}
+  .tbl-task .tr.th{display:none}
+  .tbl-task .tr .td:nth-child(n+3):nth-child(-n+6){display:none}
+  .tbl-task .tr .td:nth-child(2){grid-column:2;font-size:var(--f-micro);text-align:right}
+  .tbl-task .tr .td:nth-child(7){grid-column:3;text-align:right}
+}
+@media (max-width:400px){
+  .kpi{padding:11px}
+  .spark{display:none}
+  .heat{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ 左侧导轨 ============ -->
+  <aside class="rail">
+    <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="回到总览">
+      <span class="logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9" opacity=".30"/><circle cx="12" cy="12" r="5" opacity=".55"/>
+          <circle cx="12" cy="12" r="1.7" fill="#fff" stroke="none"/><path d="M12 12l6.4-6.4"/>
+        </svg>
+      </span>
+      <span class="brand-txt"><b>商机雷达</b><i>温州移动 · 存量挖潜</i></span>
+    </div>
+
+    <div class="rail-sec">作战面板</div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-page="overview" title="商机总览">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.6"/><rect x="14" y="3" width="7" height="5" rx="1.6"/><rect x="14" y="12" width="7" height="9" rx="1.6"/><rect x="3" y="16" width="7" height="5" rx="1.6"/></svg>
+        <span class="nav-tx">商机总览</span>
+      </button>
+      <button class="nav-item" data-page="collect" title="采集任务">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 16.2a6 6 0 0 0 0-8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 19.1a10 10 0 0 0 0-14.2"/></svg>
+        <span class="nav-tx">采集任务</span>
+      </button>
+      <button class="nav-item" data-page="leads" title="商机池">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.4 19.4c0-3 2.5-5 5.6-5s5.6 2 5.6 5"/><path d="M16.2 5.6a3 3 0 0 1 0 5.6M17.6 14.6c2 .6 3.2 2.2 3.2 4.4"/></svg>
+        <span class="nav-tx">商机池</span>
+        <u id="navLeads">0</u>
+      </button>
+      <button class="nav-item" data-page="products" title="产品线">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2 20.4 8v8L12 20.8 3.6 16V8z"/><path d="M3.6 8 12 12.6 20.4 8M12 12.6v8.2"/></svg>
+        <span class="nav-tx">产品线</span>
+      </button>
+      <button class="nav-item" data-page="region" title="地域热力">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-5.6 6.5-10.4A6.5 6.5 0 0 0 5.5 10.6C5.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.4" r="2.4"/></svg>
+        <span class="nav-tx">地域热力</span>
+      </button>
+    </nav>
+
+    <div class="rail-foot">
+      <div class="agent-pill off" id="agentPill">
+        <span class="dot"></span>
+        <span class="txt">
+          <b id="agentPillTitle">采集器未连接</b>
+          <span id="agentPillSub">双击 LineRadar.bat</span>
+        </span>
+        <button id="agentPillBtn" type="button">检测</button>
+      </div>
+      <button class="icon-btn" id="themeToggle" type="button" title="切换明暗" aria-label="切换明暗" style="width:100%">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ 右侧主体 ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="page-title">
+        <b id="pageTitle">商机总览</b>
+        <span id="pageSub">温州全域 · 9 个公开渠道 · 流量 / 宽带 / 手机 / 靓号</span>
+      </div>
+      <div class="tb-right">
+        <span class="sync" id="syncState"><i class="sdot"></i><span id="syncText">本地存储</span></span>
+      </div>
+    </header>
+
+    <main class="wrap">
+
+      <!-- ================= 1. 商机总览 ================= -->
+      <section id="page-overview" class="page active">
+
+        <div class="kpi-grid" id="kpiStrip"></div>
+
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.6 16.4 9 11l3.6 3.6L20.4 6.8"/><path d="M20.4 11V6.8h-4.2"/></svg>
+                  产品线商机
+                </h3>
+                <span class="sub">按主推产品归类</span>
+                <div class="act"><button class="link-btn" data-goto="products">产品详情
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+                </button></div>
+              </div>
+              <div class="panel-body"><div class="prod-grid" id="prodGrid"></div></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M6.5 12h11M9 18h6"/></svg>
+                  商机转化漏斗
+                </h3>
+                <span class="sub" id="funnelSub">从触达到成单</span>
+              </div>
+              <div class="panel-body"><div class="funnel" id="funnelBox"></div></div>
+            </div>
+          </div>
+
+          <div class="panel" id="todayCard">
+            <div class="panel-head">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.6V12l3 1.8"/></svg>
+                今日待跟进
+              </h3>
+              <span class="badge b-high" id="todayCount">0</span>
+              <div class="act"><button class="link-btn" data-goto="leads">全部商机
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+              </button></div>
+            </div>
+            <div id="todayList" data-sp-bindable="database" data-sp-database-id="MjDdEbw22n8gTgFBOrPurw"></div>
+          </div>
+        </div>
+
+        <div class="grid-2b" style="margin-bottom:12px">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.6"/><rect x="14" y="4" width="7" height="7" rx="1.6"/><rect x="3" y="15" width="7" height="6" rx="1.6"/><rect x="14" y="15" width="7" height="6" rx="1.6"/></svg>
+                渠道分布
+              </h3>
+              <span class="sub">9 个公开渠道</span>
+            </div>
+            <div class="panel-body"><div class="plat-grid" id="platMatrix"></div></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-5.6 6.5-10.4A6.5 6.5 0 0 0 5.5 10.6C5.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.4" r="2.4"/></svg>
+                温州地域热力
+              </h3>
+              <span class="sub">按区县商机密度</span>
+              <div class="act"><button class="link-btn" data-goto="region">展开
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+              </button></div>
+            </div>
+            <div class="panel-body">
+              <div class="heat" id="regionHeat"></div>
+              <div class="heat-legend"><span>少</span><i style="background:var(--surface-3)"></i><i style="background:color-mix(in srgb,var(--brand) 30%,var(--surface-3))"></i><i style="background:color-mix(in srgb,var(--brand) 62%,var(--surface-3))"></i><i style="background:var(--brand)"></i><span>多</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="databar">
+          <span class="muted">数据管理</span>
+          <button class="mini-btn ghost" id="exportJson">导出备份</button>
+          <button class="mini-btn ghost" id="importJson">导入恢复</button>
+          <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+          <button class="mini-btn ghost" id="resetDemo">重置示例数据</button>
+        </div>
+        <p class="env-note">数据来自抖音 / 小红书 / 快手 / 微博 / 闲鱼 / B站 / 知乎 / 58同城 的公开评论区，仅取公开可见内容用于个人研判，不做二次传播；视频号无公开搜索接口，需手工导入。</p>
+      </section>
+
+      <!-- ================= 2. 采集任务 ================= -->
+      <section id="page-collect" class="page">
+
+        <div class="cmd">
+          <div class="cmd-top">
+            <div class="cmd-field">
+              <span class="sb-ico">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+              </span>
+              <input id="kwInput" type="text" placeholder="输入关键词或直接选下方产品，例如：装宽带 温州" autocomplete="off" enterkeyhint="go">
+            </div>
+            <button id="collectBtn" class="btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"/></svg>
+              <span id="collectBtnTxt">开始采集</span>
+            </button>
+          </div>
+
+          <div class="opt-row">
+            <div class="opt-block">
+              <div class="opt-lb">产品类目 <em id="optProdTip">未选</em></div>
+              <div class="chips" id="optProducts"></div>
+            </div>
+            <div class="opt-block">
+              <div class="opt-lb">检索渠道 <em id="optPlatTip">2 个</em></div>
+              <div class="chips" id="optPlatforms"></div>
+            </div>
+          </div>
+
+          <div class="opt-row" style="margin-top:12px">
+            <div class="opt-block">
+              <div class="opt-lb">地域范围 <em id="optRegionTip">温州全域</em></div>
+              <div class="chips" id="optRegion"></div>
+            </div>
+            <div class="opt-block">
+              <div class="opt-lb">常用词</div>
+              <div class="chips" id="chips"></div>
+            </div>
+          </div>
+
+          <div class="agent-bar" id="agentBar">
+            <span class="agent-dot" id="agentDot"></span>
+            <span class="agent-txt" id="agentTxt">正在检测本地采集器…</span>
+            <button class="mini-btn ghost" id="agentRetry">重新检测</button>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin:12px 0">
+          <div class="panel chat">
+            <div class="chat-head">
+              <div class="avatar-bot">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="7.5" width="16" height="12" rx="4"/><path d="M12 3.2v4.3"/><circle cx="12" cy="2.6" r="1.1" fill="#fff" stroke="none"/>
+                  <circle cx="9.1" cy="13.2" r="1.25" fill="#fff" stroke="none"/><circle cx="14.9" cy="13.2" r="1.25" fill="#fff" stroke="none"/>
+                </svg>
+              </div>
+              <div class="grow">
+                <b>运行控制台</b>
+                <span class="status-on"><i class="sdot"></i>采集进程实时回显</span>
+              </div>
+            </div>
+            <div class="chat-body" id="chatBody"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+                渠道账号与登录
+              </h3>
+              <span class="sub" id="loginSummary">登录态存在本机</span>
+            </div>
+            <div class="panel-body" id="platGuide"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+              采集记录
+            </h3>
+            <span class="sub">按时间倒序 · 点击查看明细</span>
+          </div>
+          <div class="tbl tbl-task">
+            <div class="tr th">
+              <div class="td">关键词</div>
+              <div class="td">渠道</div>
+              <div class="td">扫描</div>
+              <div class="td">识别</div>
+              <div class="td">高意向</div>
+              <div class="td">意向率</div>
+              <div class="td">状态</div>
+            </div>
+            <div id="taskRows" data-sp-bindable="database" data-sp-database-id="i10XscWBOy9GwEoaCocg39"></div>
+          </div>
+        </div>
+
+        <div class="panel" id="taskDetail" style="display:none;margin-top:12px"></div>
+      </section>
+
+      <!-- ================= 3. 商机池 ================= -->
+      <section id="page-leads" class="page">
+        <div class="panel livebar" style="margin-bottom:12px">
+          <div class="live-left">
+            <span class="live-dot"></span>
+            <div>
+              <b>实时商机池</b>
+              <i>温州全域 · 9 个公开渠道 · 自动识别购买意向</i>
+            </div>
+          </div>
+          <div class="live-stats" id="liveStats" data-sp-bindable="database" data-sp-database-id="MjDdEbw22n8gTgFBOrPurw"></div>
+        </div>
+
+        <div class="tabs" id="industryTabs"></div>
+
+        <div class="filters">
+          <select id="fPlatform" aria-label="渠道">
+            <option value="all">全部渠道</option>
+          </select>
+          <select id="fRegion" aria-label="地域">
+            <option value="all">全部地域</option>
+          </select>
+          <select id="fBiz" aria-label="商机类型">
+            <option value="all">全部类型</option>
+          </select>
+          <select id="fLevel" aria-label="意向">
+            <option value="all">全部意向</option>
+            <option value="高">高意向</option>
+            <option value="中">中意向</option>
+            <option value="低">低意向</option>
+          </select>
+          <select id="fFollow" aria-label="状态">
+            <option value="all">全部状态</option>
+            <option value="待跟进">待跟进</option>
+            <option value="已联系">已联系</option>
+            <option value="已加微">已加微</option>
+            <option value="已成单">已成单</option>
+            <option value="无效">无效</option>
+          </select>
+          <div class="search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" style="flex:none;color:var(--ink-3)"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            <input id="fSearch" type="text" placeholder="搜昵称 / 评论 / 关键词">
+          </div>
+          <button class="mini-btn ghost" id="dedupeBtn" title="同客户同评论合并成一条">去重合并</button>
+          <button class="mini-btn ghost" id="exportCsv">导出 CSV</button>
+          <button class="mini-btn solid" id="importCsvBtn">导入 CSV</button>
+          <input id="importCsvInput" type="file" accept=".csv,text/csv" style="display:none">
+        </div>
+
+        <div class="panel">
+          <div class="tbl tbl-lead">
+            <div class="tr th">
+              <div class="td">客户</div>
+              <div class="td">渠道</div>
+              <div class="td">评论内容</div>
+              <div class="td">产品</div>
+              <div class="td">类型</div>
+              <div class="td">意向</div>
+              <div class="td">状态</div>
+            </div>
+            <div id="leadRows" data-sp-bindable="database" data-sp-database-id="MjDdEbw22n8gTgFBOrPurw"></div>
+          </div>
+          <div id="leadsEmpty" class="empty" style="display:none">
+            <span class="empty-ico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            </span>
+            <b>没有匹配的商机</b>
+            <span>换个筛选条件，或去「采集任务」按产品跑一批新的</span>
+          </div>
+        </div>
+        <p class="env-note" id="leadsSub">正在加载商机数据…</p>
+      </section>
+
+      <!-- ================= 4. 产品线 ================= -->
+      <section id="page-products" class="page">
+        <div class="prod-grid" id="prodLines" style="margin-bottom:12px"></div>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                产品 × 关键词
+              </h3>
+              <span class="sub">点关键词直接去采集</span>
+            </div>
+            <div class="panel-body stack" id="prodKwBox"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5a2 2 0 0 1-2 2H8l-4 3.2V5.5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>
+                开口话术
+              </h3>
+              <span class="sub">按产品预置，可复制</span>
+            </div>
+            <div class="panel-body"><div class="script-list" id="scriptBox"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. 地域热力 ================= -->
+      <section id="page-region" class="page">
+        <div class="panel" style="margin-bottom:12px">
+          <div class="panel-head">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-5.6 6.5-10.4A6.5 6.5 0 0 0 5.5 10.6C5.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.4" r="2.4"/></svg>
+              温州 12 个区县
+            </h3>
+            <span class="sub">点区县看明细</span>
+          </div>
+          <div class="panel-body">
+            <div class="heat" id="regionHeatFull"></div>
+            <div class="heat-legend"><span>商机少</span><i style="background:var(--surface-3)"></i><i style="background:color-mix(in srgb,var(--brand) 30%,var(--surface-3))"></i><i style="background:color-mix(in srgb,var(--brand) 62%,var(--surface-3))"></i><i style="background:var(--brand)"></i><span>商机多</span></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>区县 TOP 商机</h3>
+              <span class="sub" id="regionPickName">鹿城区</span>
+            </div>
+            <div id="regionDetail"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>地域打法建议</h3>
+            </div>
+            <div class="panel-body stack" id="regionTips"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dw-head">
+    <div class="grow">
+      <b id="dwName">客户</b>
+      <span id="dwSub"></span>
+    </div>
+    <button class="mini-btn ghost" id="dwClose" style="flex:none">关闭</button>
+  </div>
+  <div class="dw-body" id="dwBody"></div>
+  <div class="dw-foot">
+    <button class="mini-btn ghost" id="dwNext">标记已联系</button>
+    <button class="btn-primary" id="dwSave">保存跟进</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= 配置 ================= */
+  /* 数据来源标注：文本来自 / 派生自哪张表（平台绑定规范） */
+  var BIND_L = ' data-sp-bindable="database" data-sp-database-id="MjDdEbw22n8gTgFBOrPurw"';
+  var BIND_T = ' data-sp-bindable="database" data-sp-database-id="i10XscWBOy9GwEoaCocg39"';
+  var LS_LEADS = "wb_huoke_leads_v1";
+  var LS_TASKS = "wb_huoke_tasks_v1";
+
+  /* ================= 渠道（9 个公开渠道） ================= */
+  var PLATFORMS = ["抖音", "小红书", "视频号", "快手", "微博", "闲鱼", "B站", "知乎", "58同城"];
+  var P_COLOR = {
+    "抖音": "#fe2c55", "小红书": "#ff2442", "视频号": "#07c160",
+    "快手": "#ff7a00", "微博": "#e6162d", "闲鱼": "#f7c948",
+    "B站": "#fb7299", "知乎": "#0084ff", "58同城": "#ff552e"
+  };
+  /* 采集器里的平台代码；manual = 无公开搜索接口，只能手工导入 */
+  var P_CODE = {
+    "抖音": "douyin", "小红书": "xhs", "快手": "kuaishou", "微博": "weibo",
+    "闲鱼": "xianyu", "B站": "bilibili", "知乎": "zhihu", "58同城": "wuba58",
+    "视频号": "manual"
+  };
+  /* 平台登录入口：需登录才能稳定检索的平台，先点登录再采集 */
+  var P_LOGIN = {
+    "抖音": "https://www.douyin.com/",
+    "小红书": "https://www.xiaohongshu.com/explore",
+    "视频号": "https://channels.weixin.qq.com/platform",
+    "快手": "https://www.kuaishou.com/",
+    "微博": "https://weibo.com/",
+    "闲鱼": "https://www.goofish.com/",
+    "B站": "https://www.bilibili.com/",
+    "知乎": "https://www.zhihu.com/",
+    "58同城": "https://wz.58.com/"
+  };
+  /* 需要先登录才检索的平台（登录后 cookie 写入本地 browser_data，采集时自动复用） */
+  var P_NEED_LOGIN = { "快手": 1, "微博": 1, "闲鱼": 1, "B站": 1, "知乎": 1, "58同城": 1 };
+  /* ready 已跑通 / beta 选择器待实测 / manual 仅手工导入 */
+  var P_STATUS = {
+    "抖音": "ready", "小红书": "ready", "快手": "beta", "微博": "beta",
+    "闲鱼": "beta", "B站": "beta", "知乎": "beta", "58同城": "beta", "视频号": "manual"
+  };
+  var P_SCENE = {
+    "抖音": "本地生活与家装短视频下的评论，量最大、更新最快",
+    "小红书": "租房 / 装修 / 数码笔记，宽带与终端商机质量最高",
+    "视频号": "熟人圈，无公开搜索入口，建议手工导入或私域转介",
+    "快手": "县域与下沉市场，流量卡、老人机需求集中",
+    "微博": "同城热点与吐槽，异网抱怨可直接转挽留",
+    "闲鱼": "二手手机与号卡转让，判断换机、靓号需求",
+    "B站": "数码测评与学生党，流量与终端讨论密度高",
+    "知乎": "套餐对比、避坑贴，携号转网意向最真实",
+    "58同城": "租房与二手房，房东 / 租客 = 宽带新装精准池"
+  };
+
+  /* ================= 温州地域 ================= */
+  var REGIONS = ["鹿城区", "龙湾区", "瓯海区", "洞头区", "瑞安市", "乐清市",
+                 "永嘉县", "平阳县", "苍南县", "文成县", "泰顺县", "龙港市"];
+  /* 采集地域三档：none = 不限（全国检索）/ all = 温州全域 / 具体区县 */
+  var REGION_MODES = [
+    { k: "none", label: "不限地域", tip: "不拼地域词，按全国范围检索；适合看大盘、找通用需求" },
+    { k: "all", label: "温州全域", tip: "检索词自动带「温州」，覆盖 12 个区县" }
+  ];
+  var REGION_TIP = {
+    "鹿城区": "老小区多：宽带续费、提速、光猫更换为主；商圈集中，靓号与政企专线机会大。",
+    "龙湾区": "新城与产业园：FTTR 全屋光纤、政企专线、新装宽带是主战场。",
+    "瓯海区": "高校 + 新城：学生流量卡、合约机；租房人群宽带新装转化快。",
+    "洞头区": "海岛：宽带新装与信号覆盖是痛点，重点做上门测速。",
+    "瑞安市": "县域经济活跃：大流量卡、终端换机、家庭融合套餐。",
+    "乐清市": "电气产业带：政企专线与商铺网络；老板群体靓号需求明确。",
+    "永嘉县": "山区县：流量升级与副卡亲情号，老人机保有量高。",
+    "平阳县": "外出务工多：亲情号、跨省流量包、家庭共享。",
+    "苍南县": "人口大县：宽带新装与终端换机，县城门店可承接。",
+    "文成县": "山区：老人机、副卡、基础宽带覆盖。",
+    "泰顺县": "山区：信号覆盖与流量包，适合网格经理上门。",
+    "龙港市": "印刷包装产业：政企专线、商铺监控、企业宽带打包。"
+  };
+
+  /* ================= 商机类型（运营商标尺） ================= */
+  var BIZ_TYPES = ["新装", "升级", "携转", "续约", "挽留", "咨询"];
+  var BIZ_KWS = {
+    "携转": ["携号转网", "转网", "转到移动", "从联通转", "从电信转", "广电", "换运营商", "异网", "转过来"],
+    "挽留": ["信号差", "没信号", "乱扣费", "投诉", "退订", "取消", "太贵了", "想换", "销户", "不想要了"],
+    "续约": ["续费", "到期", "续约", "合约到期", "到期了"],
+    "升级": ["升级", "提速", "加大", "换套餐", "不够用", "限速", "升千兆", "提高"],
+    "新装": ["新装", "装一个", "报装", "开卡", "办卡", "刚搬", "新居", "交房", "租房", "入驻", "搬进"]
+  };
+
+  var LEVELS = ["高", "中", "低"];
+  var FOLLOWS = ["待跟进", "已联系", "已加微", "已成单", "无效"];
+  var FOLLOW_CLASS = {
+    "待跟进": "b-follow", "已联系": "b-mid", "已加微": "b-follow", "已成单": "b-done", "无效": "b-invalid"
+  };
+  var AVATAR_COLORS = ["#5b21b6", "#1d4ed8", "#b91c1c", "#15803d", "#a16207", "#0369a1", "#be185d", "#0f766e", "#7e22ce", "#c2410c"];
+
+  /* ================= 产品类目（运营商主推产品） ================= */
+  /* 每个产品：kws = 采集关键词；pain = 典型痛点（话术用）；mock = 演示数据
+     mock 行格式：[昵称, 渠道, 评论, 等级(会按分数重算), 分数, 地域] */
+  var PRODUCTS = [
+    {
+      name: "流量套餐", short: "流", color: "#22d3ee", price: "39~199 元/月",
+      kws: ["流量不够", "大流量卡", "流量超了", "限速", "5G套餐", "升级套餐", "定向流量", "校园卡", "上网卡", "不限量"],
+      pain: ["月底限速", "刷剧卡顿", "跑外卖导航", "学生党", "经常出差"],
+      script: "您好，看到您在问流量不够的问题。我们现在有个大流量升级包，原套餐不用换，加 20 元多 30G，当月生效，我帮您查一下您号码能不能办？",
+      mock: [
+        ["阿凯跑单", "抖音", "有没有大流量卡推荐？跑外卖一个月 100G 都不够用", "高", 92, "鹿城区"],
+        ["橘子汽水_22", "小红书", "39 的套餐才 10G，现在能不能直接升级？", "高", 85, "瓯海区"],
+        ["月末断网人", "微博", "移动这个月又限速了，怎么才能不限速啊", "中", 71, "龙湾区"],
+        ["山城老表", "快手", "听说有 19 元大流量卡，温州这边能办吗？", "高", 88, "平阳县"],
+        ["备考的兔子", "B站", "学生卡有没有推荐的，流量多一点那种", "中", 66, "瑞安市"],
+        ["dudu", "闲鱼", "求一张纯流量卡，不用打电话那种", "中", 63, "乐清市"],
+        ["想转网的", "微博", "联通信号太差了，想携号转网到移动，怎么办理？", "高", 90, "鹿城区"],
+        ["比价三家", "知乎", "现在用电信，想转网到移动，宽带手机一起办划算吗", "高", 87, "瓯海区"]
+      ]
+    },
+    {
+      name: "宽带", short: "宽", color: "#8b5cf6", price: "58~199 元/月",
+      kws: ["装宽带", "拉网线", "千兆宽带", "宽带续费", "网速慢", "宽带移机", "光纤", "全屋WiFi", "光猫", "报装宽带"],
+      pain: ["新居入住", "租房搬家", "房东配网", "上网课卡", "打游戏掉线"],
+      script: "您好，看到您这边要装宽带。您现在住的地址我帮您查一下有没有资源，千兆的话每月 79，含光猫和安装，最快明天就能上门，方便留个门牌吗？",
+      mock: [
+        ["新家装修中", "小红书", "鹿城这边新房要装宽带，多少兆够用？什么时候能上门", "高", 94, "鹿城区"],
+        ["瓯海小房东", "58同城", "整租房要配宽带，是房东装还是租客自己装？", "高", 86, "瓯海区"],
+        ["租房青年小林", "58同城", "刚搬进龙湾，想问下装个宽带多少钱一个月", "高", 89, "龙湾区"],
+        ["打游戏的老张", "知乎", "现在 300M 打游戏还是卡，能升千兆吗", "中", 72, "鹿城区"],
+        ["瑞安宝妈", "视频号", "孩子上网课老卡，宽带能不能提速", "中", 69, "瑞安市"],
+        ["搬砖的阿杰", "抖音", "宽带到期了，续费有没有优惠活动", "高", 83, "苍南县"],
+        ["老用户降档", "微博", "移动老用户了，套餐太贵了想降档，能改吗", "中", 63, "龙湾区"]
+      ]
+    },
+    {
+      name: "手机终端", short: "机", color: "#f59e0b", price: "999~6999 元",
+      kws: ["换手机", "买手机", "合约机", "以旧换新", "购机补贴", "学生机", "老人机", "手机分期", "营业厅买手机"],
+      pain: ["旧机卡顿", "想抵旧机", "学生开学", "给父母换机"],
+      script: "您好，您看中的这款我们营业厅有合约价，比官网便宜 400，旧机还能再抵一部分，算下来首付三百多带走，要不要我发您门店地址？",
+      mock: [
+        ["果粉不换机", "B站", "这台新机合约价多少钱？想把旧的抵掉", "高", 87, "鹿城区"],
+        ["开学大二", "小红书", "学生党换手机，有没有购机补贴或者分期免息", "高", 84, "瓯海区"],
+        ["给爸妈买手机", "抖音", "想给老人买个简单的智能机，能办副卡吗", "中", 70, "龙湾区"],
+        ["数码老猫", "知乎", "以旧换新折多少？我这台还能抵 1500 吗", "中", 68, "乐清市"],
+        ["闲鱼收机", "闲鱼", "出 14Pro，营业厅回收价高还是闲鱼高", "低", 52, "鹿城区"],
+        ["永嘉小陈", "快手", "永嘉这边营业厅有没有千元机的活动", "中", 61, "永嘉县"]
+      ]
+    },
+    {
+      name: "靓号", short: "号", color: "#ec4899", price: "预存 300~3000 元",
+      kws: ["靓号", "吉祥号", "手机选号", "豹子号", "生日号", "情侣号", "号码尾号", "顺子号"],
+      pain: ["开业图吉利", "送礼", "商务形象", "情侣 / 亲子号"],
+      script: "您好，尾号 888 这类号码我们池子里还有几个，需要预存话费就能选，我先把可选号段发您看看？您预算大概多少，我按预算筛。",
+      mock: [
+        ["开业大吉", "抖音", "下个月开店，想选个尾号 888 的号码，怎么弄", "高", 91, "鹿城区"],
+        ["婚礼筹备中", "小红书", "有没有情侣号？两个人一起办的那种", "中", 67, "瓯海区"],
+        ["做生意的老李", "微博", "吉祥号现在还能选吗？预算 3000 内", "高", 85, "乐清市"],
+        ["号码控", "知乎", "营业厅选号有什么规则？AABB 的要预存多少", "中", 64, "龙湾区"],
+        ["苍南小王", "快手", "想给儿子办个生日号，能定制吗", "中", 60, "苍南县"],
+        ["送礼的", "闲鱼", "有没有转让靓号的，尾号 6 个 8", "低", 50, "瑞安市"]
+      ]
+    },
+    {
+      name: "融合套餐", short: "融", color: "#10b981", price: "129~259 元/月",
+      subs: ["手机+宽带", "IPTV", "智慧家庭"],
+      kws: ["融合套餐", "手机宽带一起", "全家享", "电视盒子", "IPTV", "智慧家庭", "家庭套餐"],
+      pain: ["分开交太贵", "一家多口", "想看电视频道"],
+      script: "您好，您手机和宽带如果合成一个融合套餐，每个月能省三四十，还送电视盒子，我帮您算一下现在两个加起来多少钱？",
+      mock: [
+        ["一家四口", "抖音", "手机+宽带一起办能便宜多少？现在分开交太贵", "高", 88, "鹿城区"],
+        ["电视迷奶奶", "视频号", "宽带能不能带电视盒子？想看戏曲频道", "中", 65, "永嘉县"],
+        ["精打细算", "小红书", "全家享套餐划不划算？三个人一起用", "高", 82, "瓯海区"]
+      ]
+    },
+    {
+      name: "副卡·亲情号", short: "副", color: "#0ea5e9", price: "10 元/月/张",
+      kws: ["办副卡", "亲情号", "家庭共享", "共享流量", "给孩子办卡", "老人卡"],
+      pain: ["给孩子配号", "老人只用打电话", "家人互打免费"],
+      script: "您好，副卡一个月 10 块，能共用您主卡的流量和通话，给孩子或者老人用最合适，带身份证来营业厅十分钟就能办。",
+      mock: [
+        ["初三家长", "抖音", "给孩子办个副卡，能共用我的流量吗", "高", 84, "鹿城区"],
+        ["异地恋", "微博", "亲情号怎么加？打电话免费那种", "中", 62, "龙湾区"],
+        ["外婆的手机", "小红书", "老人卡月租最低多少？只要打电话", "中", 66, "文成县"]
+      ]
+    },
+    {
+      name: "全屋光纤 FTTR", short: "纤", color: "#a78bfa", price: "99~199 元/月",
+      kws: ["FTTR", "全屋覆盖", "WiFi死角", "全屋组网", "mesh组网", "复式宽带", "大平层网络"],
+      pain: ["大户型死角", "复式 / 别墅", "多设备卡顿"],
+      script: "您家面积大的话，普通路由器确实有死角。FTTR 是光纤到每个房间，全屋一个 WiFi 名，师傅上门设计布线，要不要先约个免费测速？",
+      mock: [
+        ["复式装修", "小红书", "两百平复式，WiFi 有死角，FTTR 能解决吗", "高", 86, "鹿城区"],
+        ["别墅业主", "知乎", "三层楼想做全屋覆盖，装 FTTR 还是 mesh", "中", 71, "瓯海区"]
+      ]
+    },
+    {
+      name: "政企·商铺", short: "企", color: "#64748b", price: "按需报价",
+      kws: ["企业宽带", "专线", "商铺网络", "门店监控", "云宽带", "开店拉网", "工作室宽带"],
+      pain: ["新店开业", "收银与监控", "上行带宽不足"],
+      script: "您店里要装收银和监控的话，普通家宽上行不够，我们有商铺专享套餐，含固定 IP 和故障 4 小时上门，我让客户经理联系您？",
+      mock: [
+        ["奶茶店老板", "抖音", "新店要装收银和监控，需要什么网络", "高", 80, "鹿城区"],
+        ["电商工作室", "58同城", "工作室要拉专线，上行大一点的", "中", 73, "瓯海区"]
+      ]
+    },
+    {
+      name: "云电脑", short: "云", color: "#6366f1", price: "29~89 元/月",
+      subs: ["云桌面", "云主机", "瘦终端"],
+      kws: ["云电脑", "云桌面", "手机变电脑", "远程办公电脑", "云主机", "虚拟电脑", "不用买主机", "瘦终端"],
+      pain: ["老笔记本卡顿", "出差要带电脑", "只用来上网课", "小公司不想买主机", "设计渲染跑不动"],
+      script: "您好，云电脑不用买主机，一个账号就能用，手机、平板、旧笔记本都能连上去当高配电脑用，按月中杯 39 起，要我先给您开个试用吗？",
+      mock: [
+        ["小公司行政", "知乎", "公司十个人，不想一人买一台电脑，云桌面靠谱吗", "高", 84, "鹿城区"],
+        ["出差的老周", "微博", "经常出差，笔记本太重，云电脑能不能手机直接连", "中", 72, "龙湾区"],
+        ["开网店的小美", "小红书", "就挂个客服软件，云电脑是不是比买主机划算", "中", 70, "瓯海区"],
+        ["会计张姐", "抖音", "旧电脑开个表格都卡，云电脑能装财务软件吗", "高", 79, "瑞安市"]
+      ]
+    },
+    {
+      name: "智能穿戴", short: "戴", color: "#14b8a6", price: "199~1299 元",
+      subs: ["智能手环", "儿童手表", "eSIM 手表", "运动手表"],
+      kws: ["智能手环", "运动手表", "儿童手表", "测心率手表", "定位手表", "eSIM手表", "睡眠监测", "老人手表"],
+      pain: ["看心率睡眠", "孩子上下学定位", "跑步记录", "老人跌倒想告警", "手表想独立通话"],
+      script: "您好，这款手环能测心率、血氧和睡眠，跟手机套餐绑一起还有补贴价，eSIM 版不带手机也能接电话，我帮您看看哪个版本划算？",
+      mock: [
+        ["跑步的阿豪", "B站", "想买个能测心率的手环，运营商那边有补贴吗", "中", 68, "鹿城区"],
+        ["一年级家长", "小红书", "儿童手表哪个能定位？需要单独插卡吗", "高", 83, "瓯海区"],
+        ["关心爸妈", "抖音", "老人手表能测跌倒的，营业厅有卖吗", "高", 78, "永嘉县"],
+        ["健身打卡中", "微博", "手表 eSIM 版一个月多花多少钱？值不值", "中", 64, "龙湾区"]
+      ]
+    },
+    {
+      name: "智家安防", short: "安", color: "#f43f5e", price: "199~1999 元",
+      subs: ["家用摄像头", "智能门锁", "智能猫眼", "老人看护"],
+      kws: ["家用摄像头", "智能门锁", "看家摄像头", "门口监控", "智能猫眼", "指纹锁", "老人看护", "全屋智能"],
+      pain: ["白天看孩子", "独居老人", "出租房安全", "总忘带钥匙", "想装但不会配网"],
+      script: "您好，这个摄像头能手机远程看，装宽带的时候师傅顺手就帮您装好、配好网，门锁指纹密码都能开，要不要一起算进宽带套餐里？",
+      mock: [
+        ["双职工爸妈", "小红书", "白天上班想看孩子，装什么摄像头靠谱", "高", 81, "鹿城区"],
+        ["刚交房", "58同城", "新房想装指纹锁和门口监控，谁能上门装", "高", 86, "瓯海区"],
+        ["出租房房东", "闲鱼", "出租房想装个便宜的监控，有推荐吗", "中", 66, "龙湾区"],
+        ["独居女生", "知乎", "一个人住，智能猫眼和摄像头哪个更实用", "中", 71, "瑞安市"]
+      ]
+    },
+    {
+      name: "视频会员", short: "视", color: "#eab308", price: "9.9~249 元",
+      subs: ["爱奇艺", "腾讯视频", "优酷", "咪咕 NBA", "芒果 TV"],
+      kws: ["爱奇艺会员", "腾讯视频会员", "优酷会员", "NBA会员", "咪咕视频", "体育会员", "联合会员", "会员便宜"],
+      pain: ["追剧要会员", "看 NBA 直播", "几个平台都想看", "不想按原价买", "电视上投不了"],
+      script: "您好，视频会员我们这边有联合权益包，爱奇艺、腾讯、优酷和 NBA 都能选，比官网单买便宜不少，还能直接投电视看，我发您几个档位对比？",
+      mock: [
+        ["追剧不停", "抖音", "爱奇艺年卡有没有便宜的渠道？官网太贵了", "高", 85, "鹿城区"],
+        ["NBA球迷", "微博", "今年 NBA 在哪看？咪咕会员多少钱", "高", 88, "龙湾区"],
+        ["全家都看", "小红书", "腾讯和优酷都想看，有没有联合会员", "中", 73, "瓯海区"],
+        ["学生党省钱", "B站", "视频会员学生价怎么认证？营业厅能办吗", "中", 67, "瑞安市"],
+        ["电视投屏党", "知乎", "投屏老是失败，办运营商会员能直接在电视上看吗", "中", 62, "乐清市"]
+      ]
+    }
+  ];
+
+  /* 首页产品线：4 个主力 + 4 个新增（智家 / 内容权益） */
+  var HOME_PRODS = ["流量套餐", "宽带", "手机终端", "靓号", "云电脑", "智能穿戴", "智家安防", "视频会员"];
+
+  /* 兼容旧逻辑：mock 采集按「行业」取样本，这里直接把产品当行业用 */
+  var INDUSTRIES = PRODUCTS.map(function (p) {
+    return { name: p.name, kws: p.kws, list: p.mock };
+  });
+
+  var QUICK_KWS = ["装宽带", "流量不够", "换手机", "选靓号", "云电脑", "智能手环", "看家摄像头", "视频会员", "携号转网", "宽带续费"];
+
+  /* 意向词高亮词表（长词优先匹配，单次替换避免嵌套） */
+  var HOT_WORDS = ["价格", "多少钱", "优惠", "报价", "怎么买", "去哪买", "哪里买", "定金", "下单", "团购", "活动价", "便宜", "折扣", "分期", "链接", "首付", "收费", "价位", "什么价格", "怎么收费", "报名", "囤",
+    // 运营商 / 通信业务：只收动作意图词，不收宽带/流量/靓号等产品名（搜索词本身按产品走）
+    "办理", "办宽带", "办个", "办卡", "办套餐", "装宽带", "装个", "装机", "加装",
+    "携号转网", "转网", "换手机", "换靓号", "换卡", "换个手机", "换个靓号", "换个套餐",
+    "流量不够", "流量卡", "流量包", "流量套餐", "宽带续费", "续费", "续约",
+    "升级套餐", "升档", "升套餐"];
+  var SOFT_WORDS = ["预约", "联系", "微信", "咨询", "私信", "地址", "门店", "样品", "试听", "体验", "报告", "发我", "发一下", "到店", "量房", "面诊", "名额", "案例", "大纲", "套餐"];
+
+  /* ================= 渠道登录态（存在本机 browser_data，采集时自动复用） ================= */
+  var loginState = {};
+  var loginPoll = null;
+
+  /* ================= 状态 ================= */
+  var state = {
+    page: "overview",
+    leads: [],
+    tasks: [],
+    running: false,
+    filters: { industry: "all", platform: "all", region: "all", biz: "all", level: "all", follow: "all", q: "" },
+    activeTask: null,
+    drawerId: null,
+    sel: { products: [], platforms: ["抖音", "小红书"], region: "all" },
+    ui: { region: "鹿城区", theme: "dark" }
+  };
+
+  /* ================= 工具 ================= */
+  function $(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function fmtTime(d) {
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " +
+      pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+
+  function fmtDay(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+
+  function todayStr() { return fmtDay(new Date()); }
+
+  function uid(p) { return (p || "L") + Date.now().toString(36) + Math.floor(Math.random() * 900 + 100); }
+
+  function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+  function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
+
+  function levelOf(score) { return score >= 75 ? "高" : (score >= 55 ? "中" : "低"); }
+
+  function avatarColor(name) {
+    var h = 0, i;
+    for (i = 0; i < name.length; i++) { h = (h * 31 + name.charCodeAt(i)) % 9973; }
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  function initial(name) {
+    var s = String(name || "?").replace(/[_\-\.0-9]/g, "");
+    return (s.charAt(0) || "?").toUpperCase();
+  }
+
+  /* 评论内容高亮：单次正则替换，避免嵌套 */
+  function hl(text) {
+    var safe = esc(text);
+    var all = HOT_WORDS.concat(SOFT_WORDS).sort(function (a, b) { return b.length - a.length; });
+    var re = new RegExp("(" + all.join("|") + ")", "g");
+    return safe.replace(re, function (m) {
+      var hot = HOT_WORDS.indexOf(m) > -1;
+      return '<mark' + (hot ? ' class="hot"' : "") + ">" + m + "</mark>";
+    });
+  }
+
+  function hitWords(text) {
+    var out = [], i;
+    var all = HOT_WORDS.concat(SOFT_WORDS);
+    for (i = 0; i < all.length; i++) {
+      if (text.indexOf(all[i]) > -1 && out.indexOf(all[i]) === -1) out.push(all[i]);
+    }
+    return out.slice(0, 4);
+  }
+
+  function toast(msg) {
+    var el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove("show"); }, 2300);
+  }
+
+  /* 轻量确认弹窗：返回 Promise<boolean>（true = 点主按钮） */
+  function askConfirm(opt) {
+    return new Promise(function (resolve) {
+      var mask = document.createElement("div");
+      mask.className = "cfm-mask";
+      mask.innerHTML = '<div class="cfm" role="dialog" aria-modal="true" aria-labelledby="cfmT">' +
+        '<h4 id="cfmT">' + esc(opt.title || "确认") + "</h4>" +
+        "<p>" + esc(opt.desc || "") + "</p>" +
+        '<div class="cfm-act">' +
+          '<button type="button" data-cfm="0">' + esc(opt.cancelText || "取消") + "</button>" +
+          '<button type="button" class="pri" data-cfm="1">' + esc(opt.okText || "确定") + "</button>" +
+        "</div></div>";
+      document.body.appendChild(mask);
+      requestAnimationFrame(function () { mask.classList.add("show"); });
+      var done = false;
+      function close(v) {
+        if (done) return;
+        done = true;
+        document.removeEventListener("keydown", onKey);
+        mask.classList.remove("show");
+        setTimeout(function () { if (mask.parentNode) mask.parentNode.removeChild(mask); }, 230);
+        resolve(v);
+      }
+      function onKey(e) { if (e.key === "Escape") close(false); }
+      document.addEventListener("keydown", onKey);
+      mask.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-cfm]");
+        if (b) { close(b.getAttribute("data-cfm") === "1"); return; }
+        if (e.target === mask) close(false);
+      });
+      var pri = mask.querySelector(".pri");
+      if (pri) pri.focus();
+    });
+  }
+
+  function loadLoginState(retry) {
+    retry = retry || 0;
+    return agentReq("/login/status", { timeout: 3000 })
+      .then(function (r) {
+        if (r && r.ok && r.logins && Object.keys(r.logins).length) loginState = r.logins;
+        // 服务端首次扫描是后台异步的，读完立刻再补一次
+        if (r && r.login_checking && retry < 3) {
+          return new Promise(function (res) {
+            setTimeout(function () { res(loadLoginState(retry + 1)); }, 900);
+          });
+        }
+        if (state.page === "collect") renderPlatGuide();
+        return loginState;
+      })
+      .catch(function () { return loginState; });
+  }
+
+  function loginPlatform(name) {
+    var url = P_LOGIN[name];
+    if (!url) { toast("该渠道暂无登录入口"); return; }
+    if (P_STATUS[name] === "manual") { toast("视频号请在微信客户端里登录，本地窗口无法完成"); return; }
+    toast("正在打开 " + name + " 登录窗口…");
+    agentReq("/login", { method: "POST", timeout: 20000, body: { platform: name, code: P_CODE[name], url: url } })
+      .then(function (r) {
+        if (!r || !r.ok) throw new Error((r && r.error) || "打不开登录窗口");
+        toast("已打开 " + name + "，扫码或登录后窗口会自动关闭");
+        if (loginPoll) clearInterval(loginPoll);
+        var t0 = Date.now();
+        loginPoll = setInterval(function () {
+          loadLoginState().then(function () {
+            if (loginState[name] && loginState[name].ok) {
+              clearInterval(loginPoll); loginPoll = null;
+              renderPlatGuide(); renderOpts();
+              toast(name + " 登录成功，可以开始采集了");
+            }
+          });
+          if (Date.now() - t0 > 360000) { clearInterval(loginPoll); loginPoll = null; }
+        }, 3000);
+      })
+      .catch(function (e) { toast("登录窗口没打开：" + e.message); });
+  }
+
+  function setSync(mode, text) {
+    var box = $("syncState");
+    box.className = "sync" + (mode === "warn" ? " warn" : (mode === "off" ? " off" : ""));
+    $("syncText").textContent = text;
+  }
+
+  /* ================= 数据层（cloud + 本地兜底） ================= */
+  var Store = {
+    mode: "local",
+    db: null,
+
+    init: function () {
+      var sp = window.__SMART_PAGE__;
+      if (sp && sp.database && typeof sp.database.query === "function") {
+        this.db = sp.database;
+        this.mode = "cloud";
+      }
+      return Promise.resolve();
+    },
+
+    fetchLeads: function () {
+      var self = this, acc = [];
+      function step(cursor, guard) {
+        if (guard > 60) return Promise.resolve(acc);
+        return self.db.query({ databaseId: "MjDdEbw22n8gTgFBOrPurw", pageSize: 200, startCursor: cursor })
+          .then(function (r) {
+            var rows = (r && r.results) || [];
+            acc = acc.concat(rows);
+            var next = r && r.nextCursor;
+            if (r && r.hasMore && next && next !== cursor && rows.length) return step(next, guard + 1);
+            return acc;
+          });
+      }
+      return step(undefined, 0);
+    },
+
+    fetchTasks: function () {
+      var self = this, acc = [];
+      function step(cursor, guard) {
+        if (guard > 60) return Promise.resolve(acc);
+        return self.db.query({ databaseId: "i10XscWBOy9GwEoaCocg39", pageSize: 200, startCursor: cursor })
+          .then(function (r) {
+            var rows = (r && r.results) || [];
+            acc = acc.concat(rows);
+            var next = r && r.nextCursor;
+            if (r && r.hasMore && next && next !== cursor && rows.length) return step(next, guard + 1);
+            return acc;
+          });
+      }
+      return step(undefined, 0);
+    },
+
+    load: function () {
+      var self = this;
+      if (this.mode === "cloud") {
+        setSync("", "同步中");
+        return Promise.all([this.fetchLeads(), this.fetchTasks()])
+          .then(function (res) {
+            state.leads = res[0].map(mapLeadFromRow);
+            state.tasks = res[1].map(mapTaskFromRow);
+            self.cacheLocal();
+            setSync("", "云端已同步");
+            return true;
+          })
+          .catch(function (err) {
+            console.error("[store] 云端读取失败，切换本地模式", err);
+            self.mode = "local";
+            self.readLocal();
+            setSync("warn", "本地模式");
+            return false;
+          });
+      }
+      this.readLocal();
+      setSync("off", "本地存储");
+      return Promise.resolve(false);
+    },
+
+    readLocal: function () {
+      state.leads = lsGet(LS_LEADS, []);
+      state.tasks = lsGet(LS_TASKS, []);
+    },
+
+    cacheLocal: function () {
+      try {
+        localStorage.setItem(LS_LEADS, JSON.stringify(state.leads));
+        localStorage.setItem(LS_TASKS, JSON.stringify(state.tasks));
+      } catch (e) { /* 容量异常忽略 */ }
+    },
+
+    addLead: function (lead) {
+      var self = this;
+      if (this.mode === "cloud") {
+        return this.db.addRecord({ databaseId: "MjDdEbw22n8gTgFBOrPurw", properties: leadToProps(lead) })
+          .then(function (r) { lead._rid = (r && r.id) || ""; return lead; })
+          .catch(function (err) {
+            console.error("[store] 写入客户失败", err);
+            self.mode = "local";
+            setSync("warn", "本地模式");
+            return lead;
+          });
+      }
+      return Promise.resolve(lead);
+    },
+
+    updateLead: function (id, patch) {
+      var self = this;
+      var lead = null, i;
+      for (i = 0; i < state.leads.length; i++) { if (state.leads[i].id === id) { lead = state.leads[i]; break; } }
+      if (!lead) return Promise.resolve(false);
+      for (var k in patch) { if (patch.hasOwnProperty(k)) lead[k] = patch[k]; }
+      this.cacheLocal();
+      if (this.mode === "cloud" && lead._rid) {
+        return this.db.updateRecord({ databaseId: "MjDdEbw22n8gTgFBOrPurw", recordId: lead._rid, properties: leadToProps(patch, true) })
+          .then(function () { return true; })
+          .catch(function (err) { console.error("[store] 更新失败", err); return false; });
+      }
+      return Promise.resolve(true);
+    },
+
+    addTask: function (task) {
+      var self = this;
+      if (this.mode === "cloud") {
+        return this.db.addRecord({ databaseId: "i10XscWBOy9GwEoaCocg39", properties: taskToProps(task) })
+          .then(function (r) { task._rid = (r && r.id) || ""; return task; })
+          .catch(function (err) {
+            console.error("[store] 写入任务失败", err);
+            self.mode = "local";
+            setSync("warn", "本地模式");
+            return task;
+          });
+      }
+      return Promise.resolve(task);
+    },
+
+    clearAll: function () {
+      var self = this;
+      if (this.mode !== "cloud" || !this.db) {
+        clearCache();
+        return Promise.resolve(true);
+      }
+      var del = state.leads.concat(state.tasks).filter(function (r) { return r._rid; });
+      return Promise.all(del.map(function (r) {
+        var call = r._t === "task"
+          ? self.db.deleteRecord({ databaseId: "i10XscWBOy9GwEoaCocg39", recordId: r._rid })
+          : self.db.deleteRecord({ databaseId: "MjDdEbw22n8gTgFBOrPurw", recordId: r._rid });
+        return call.catch(function () { return null; });
+      })).then(function () { clearCache(); return true; });
+    }
+  };
+
+  function clearCache() {
+    try {
+      localStorage.removeItem(LS_LEADS);
+      localStorage.removeItem(LS_TASKS);
+    } catch (e) { /* 忽略 */ }
+  }
+
+  function lsGet(key, dft) {
+    try {
+      var raw = localStorage.getItem(key);
+      if (!raw) return dft;
+      var v = JSON.parse(raw);
+      return Array.isArray(v) ? v : dft;
+    } catch (e) { return dft; }
+  }
+
+  function toPropsBase(lead) {
+    return {
+      "客户昵称": { text: lead.name || "" },
+      "来源平台": { select: lead.platform || "" },
+      "评论内容": { text: lead.comment || "" },
+      "行业分类": { select: lead.industry || "" },
+      "意向等级": { select: lead.level || "" },
+      "意向分": { number: Number(lead.score) || 0 },
+      "命中关键词": { text: lead.keywords || "" },
+      "采集关键词": { text: lead.taskKw || "" },
+      "主页链接": { text: lead.home || "" },
+      "跟进状态": { select: lead.follow || "待跟进" },
+      "备注": { text: lead.note || "" },
+      "采集时间": { text: lead.time || "" },
+      "批次": { text: lead.batch || "" }
+    };
+  }
+
+  /* partial=true 时只写入 patch 中出现的字段 */
+  function leadToProps(patch, partial) {
+    var full = toPropsBase(patch);
+    if (!partial) return full;
+    var out = {}, map = {
+      name: "客户昵称", platform: "来源平台", comment: "评论内容", industry: "行业分类",
+      level: "意向等级", score: "意向分", keywords: "命中关键词", taskKw: "采集关键词",
+      home: "主页链接", follow: "跟进状态", note: "备注", time: "采集时间", batch: "批次"
+    };
+    for (var k in patch) {
+      if (patch.hasOwnProperty(k) && map[k]) out[map[k]] = full[map[k]];
+    }
+    return out;
+  }
+
+  function mapLeadFromRow(row) {
+    return {
+      _t: "lead",
+      id: row._id || uid("L"),
+      _rid: row._id || "",
+      name: row["客户昵称"] || "",
+      platform: row["来源平台"] || "",
+      comment: row["评论内容"] || "",
+      industry: row["行业分类"] || "",
+      level: row["意向等级"] || "",
+      score: Number(row["意向分"]) || 0,
+      keywords: row["命中关键词"] || "",
+      taskKw: row["采集关键词"] || "",
+      home: row["主页链接"] || "",
+      follow: row["跟进状态"] || "待跟进",
+      note: row["备注"] || "",
+      time: row["采集时间"] || "",
+      batch: row["批次"] || ""
+    };
+  }
+
+  function taskToProps(task) {
+    return {
+      "关键词": { text: task.keyword || "" },
+      "平台范围": { text: task.platforms || "" },
+      "扫描内容": { number: Number(task.scanned) || 0 },
+      "识别意向": { number: Number(task.found) || 0 },
+      "高意向": { number: Number(task.high) || 0 },
+      "耗时": { text: task.cost || "" },
+      "状态": { select: task.status || "已完成" },
+      "采集时间": { text: task.time || "" },
+      "批次": { text: task.batch || "" }
+    };
+  }
+
+  function mapTaskFromRow(row) {
+    return {
+      _t: "task",
+      id: row["批次"] || row._id,
+      _rid: row._id || "",
+      keyword: row["关键词"] || "",
+      platforms: row["平台范围"] || "",
+      scanned: Number(row["扫描内容"]) || 0,
+      found: Number(row["识别意向"]) || 0,
+      high: Number(row["高意向"]) || 0,
+      cost: row["耗时"] || "",
+      status: row["状态"] || "已完成",
+      time: row["采集时间"] || "",
+      batch: row["批次"] || ""
+    };
+  }
+
+  /* ================= 示例数据生成（仅「重置为示例数据」时使用） ================= */
+  function matchIndustry(kw) {
+    var k = String(kw).toLowerCase(), i, j;
+    for (i = 0; i < INDUSTRIES.length; i++) {
+      for (j = 0; j < INDUSTRIES[i].kws.length; j++) {
+        if (k.indexOf(INDUSTRIES[i].kws[j].toLowerCase()) > -1) return INDUSTRIES[i];
+      }
+      if (k.indexOf(INDUSTRIES[i].name) > -1) return INDUSTRIES[i];
+    }
+    return null;
+  }
+
+  function genericList(kw) {
+    return [
+      [kw + "爱好者", "抖音", "这个" + kw + "在哪里能买到？价格多少", "高", 90],
+      ["小鹿快跑", "小红书", "想了解" + kw + "，能私信发下报价吗", "高", 87],
+      ["阿飞", "抖音", kw + "有优惠活动吗？想下单", "高", 85],
+      ["一颗柠檬", "小红书", "预约的话怎么联系？想实地看看", "高", 83],
+      ["慢慢来", "视频号", kw + "怎么收费？有套餐吗", "中", 72],
+      ["夜行者", "知乎", "这个" + kw + "靠谱吗？想咨询下", "中", 68],
+      ["小满", "快手", "链接发我一下，想对比下", "中", 64],
+      ["云朵", "微博", "有样品可以看吗？", "低", 50],
+      ["老张", "B站", kw + "大概什么价位", "低", 46],
+      ["甜筒", "抖音", "私信我一下联系方式", "高", 80]
+    ];
+  }
+
+  function buildBatchLeads(kw, batch, timeStr) {
+    var ind = matchIndustry(kw);
+    var pool = ind ? ind.list.slice() : genericList(kw);
+    var industryName = ind ? ind.name : "综合行业";
+    var n = randInt(4, Math.min(9, pool.length));
+    var picked = [], i, lead, arr = [];
+
+    /* 打乱后取前 n 条，同一批不重复 */
+    for (i = pool.length - 1; i > 0; i--) {
+      var j = randInt(0, i), t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+    }
+    picked = pool.slice(0, n);
+
+    for (i = 0; i < picked.length; i++) {
+      var row = picked[i];
+      var score = Math.max(35, Math.min(99, row[4] + randInt(-5, 4)));
+      lead = {
+        id: uid("L"),
+        name: row[0],
+        platform: row[1],
+        comment: row[2],
+        industry: industryName,
+        region: row[5] || "",
+        level: levelOf(score),
+        score: score,
+        keywords: hitWords(row[2]).join(" / "),
+        taskKw: kw,
+        home: "",
+        follow: "待跟进",
+        note: "",
+        time: timeStr,
+        batch: batch
+      };
+      arr.push(lead);
+    }
+    return arr;
+  }
+
+  /* ================= 示例数据 ================= */
+  function buildSeed() {
+    var leads = [], tasks = [], now = new Date(), i, t, d;
+
+    var seedPlan = [
+      { kw: "装宽带", hoursAgo: 2 },
+      { kw: "流量不够", hoursAgo: 5 },
+      { kw: "换手机", hoursAgo: 9 },
+      { kw: "选靓号", hoursAgo: 26 },
+      { kw: "宽带续费", hoursAgo: 31 },
+      { kw: "千兆宽带", hoursAgo: 40 },
+      { kw: "办副卡", hoursAgo: 52 },
+      { kw: "FTTR全屋覆盖", hoursAgo: 60 }
+    ];
+
+    for (t = 0; t < seedPlan.length; t++) {
+      d = new Date(now.getTime() - seedPlan[t].hoursAgo * 3600 * 1000);
+      var batch = "B" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + pad2(d.getHours()) + pad2(d.getMinutes()) + t;
+      var list = buildBatchLeads(seedPlan[t].kw, batch, fmtTime(d));
+      var high = 0;
+      for (i = 0; i < list.length; i++) {
+        if (list[i].level === "高") high++;
+        if (t >= 2) {
+          /* 老批次留少量待跟进，形成「超 24h」待办 */
+          list[i].follow = (i % 3 === 0) ? "待跟进" : pick(["已联系", "已加微"]);
+          if (i % 7 === 0) list[i].follow = "已成单";
+        }
+        leads.push(list[i]);
+      }
+      tasks.push({
+        id: batch,
+        keyword: seedPlan[t].kw,
+        platforms: "抖音 / 小红书 / 快手 / 58同城",
+        scanned: list.length * randInt(3, 4) + randInt(2, 7),
+        found: list.length,
+        high: high,
+        cost: (1.6 + Math.random() * 2.4).toFixed(1) + "s",
+        status: "已完成",
+        time: fmtTime(d),
+        batch: batch
+      });
+    }
+    return { leads: leads, tasks: tasks };
+  }
+
+  /* ================= 计算层 ================= */
+  function sortByTimeDesc(arr) {
+    return arr.slice().sort(function (a, b) {
+      return String(b.time).localeCompare(String(a.time));
+    });
+  }
+
+  function latestBatch() {
+    var sorted = sortByTimeDesc(state.tasks);
+    return sorted.length ? sorted[0].batch : "";
+  }
+
+  function statAll() {
+    var total = state.leads.length, today = 0, high = 0, i, d = todayStr();
+    for (i = 0; i < state.leads.length; i++) {
+      if (String(state.leads[i].time).indexOf(d) === 0) today++;
+      if (state.leads[i].level === "高") high++;
+    }
+    var sortedT = sortByTimeDesc(state.tasks);
+    return {
+      total: total,
+      today: today,
+      high: high,
+      lastFound: sortedT.length ? sortedT[0].found : 0,
+      tasks: state.tasks.length
+    };
+  }
+
+  function filteredLeads() {
+    var f = state.filters, out = [], i, l;
+    for (i = 0; i < state.leads.length; i++) {
+      l = state.leads[i];
+      // 分类筛选与行业 Tab / 产品卡一致：用 productOf 派生产品，而不是原始 industry 字段。
+      // 真实采集的线索 industry 来自 intent.py 旧行业库（综合行业/家具行业…），
+      // 与前端产品名（宽带/流量套餐…）不一致，直接比 l.industry 会让点分类全空。
+      if (f.industry !== "all" && productOf(l) !== f.industry) continue;
+      if (f.platform !== "all" && l.platform !== f.platform) continue;
+      if (f.level !== "all" && l.level !== f.level) continue;
+      if (f.follow !== "all" && l.follow !== f.follow) continue;
+      if (f.q) {
+        var q = f.q.toLowerCase();
+        if (String(l.name).toLowerCase().indexOf(q) === -1 &&
+            String(l.comment).toLowerCase().indexOf(q) === -1 &&
+            String(l.keywords).toLowerCase().indexOf(q) === -1) continue;
+      }
+      out.push(l);
+    }
+    return sortByTimeDesc(out).sort(function (a, b) { return b.score - a.score; });
+  }
+
+  function pendingLeads() {
+    var out = [], i, l;
+    for (i = 0; i < state.leads.length; i++) {
+      l = state.leads[i];
+      if (l.follow === "待跟进") out.push(l);
+    }
+    out.sort(function (a, b) { return b.score - a.score; });
+    return out;
+  }
+
+  function isToday(t) { return String(t).indexOf(todayStr()) === 0; }
+
+  /* ================= 业务派生：产品 / 商机类型 / 地域 ================= */
+  function prodOfName(name) {
+    for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].name === name) return PRODUCTS[i];
+    return null;
+  }
+
+  function scanKws(text, list) {
+    var hit = 0;
+    for (var i = 0; i < list.length; i++) if (list[i] && text.indexOf(list[i]) >= 0) hit++;
+    return hit;
+  }
+
+  function pcText(c) { return "color-mix(in srgb, " + c + " 68%, #fff)"; }
+
+  function productOf(l) {
+    if (l.industry && prodOfName(l.industry)) return l.industry;
+    var text = (l.comment || "") + " " + (l.taskKw || "") + " " + (l.keywords || "") + " " + (l.industry || "");
+    var best = "", bestN = 0, n;
+    for (var i = 0; i < PRODUCTS.length; i++) {
+      n = scanKws(text, PRODUCTS[i].kws);
+      if (n > bestN) { bestN = n; best = PRODUCTS[i].name; }
+    }
+    return best || "其他";
+  }
+
+  function bizOf(l) {
+    var text = (l.comment || "") + " " + (l.taskKw || "");
+    var order = ["携转", "挽留", "续约", "升级", "新装"];
+    for (var i = 0; i < order.length; i++) {
+      if (scanKws(text, BIZ_KWS[order[i]]) > 0) return order[i];
+    }
+    return "咨询";
+  }
+
+  function regionOf(l) {
+    if (l.region) return l.region;
+    var text = (l.comment || "") + " " + (l.taskKw || "") + " " + (l.keywords || "");
+    for (var i = 0; i < REGIONS.length; i++) if (text.indexOf(REGIONS[i]) >= 0) return REGIONS[i];
+    return "";
+  }
+
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () { toast("话术已复制"); },
+        function () { toast("复制失败，请手动选中"); });
+      return;
+    }
+    var ta = document.createElement("textarea");
+    ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast("话术已复制"); } catch (e) { toast("复制失败"); }
+    document.body.removeChild(ta);
+  }
+
+  /* ================= 渲染：总览 ================= */
+  var BIZ_CLASS = { "携转": "b-high", "挽留": "b-mid", "新装": "b-done",
+                    "升级": "b-follow", "续约": "b-low", "咨询": "b-low" };
+  var PAGE_META = {
+    overview: ["商机总览", "温州全域 · 9 个公开渠道 · 流量 / 宽带 / 手机 / 靓号"],
+    collect:  ["采集任务", "选产品、选渠道、选地域，一次跑完"],
+    leads:    ["商机池", "按产品 / 渠道 / 地域 / 类型筛选跟进"],
+    products: ["产品线", "8 条主推产品 · 关键词与开口话术"],
+    region:   ["地域热力", "温州 12 个区县商机密度"]
+  };
+
+  function pct(a, b) { return b > 0 ? Math.round(a * 100 / b) : 0; }
+
+  function countBy(list, fn) {
+    var m = {}, i, k;
+    for (i = 0; i < list.length; i++) { k = fn(list[i]) || "其他"; m[k] = (m[k] || 0) + 1; }
+    return m;
+  }
+
+  function daySeries(n) {
+    var out = [], i, d, key, m = {}, t;
+    for (i = 0; i < state.leads.length; i++) {
+      t = String(state.leads[i].time || "").slice(0, 10);
+      if (t) m[t] = (m[t] || 0) + 1;
+    }
+    for (i = n - 1; i >= 0; i--) {
+      d = new Date(); d.setDate(d.getDate() - i);
+      key = fmtDay(d);
+      out.push(m[key] || 0);
+    }
+    return out;
+  }
+
+  function sparkHtml(series) {
+    var max = 0, i, h, out = '<span class="spark">';
+    for (i = 0; i < series.length; i++) if (series[i] > max) max = series[i];
+    for (i = 0; i < series.length; i++) {
+      h = max ? Math.max(3, Math.round(series[i] * 20 / max)) : 3;
+      out += '<i class="' + (i === series.length - 1 ? "hi" : "") + '" style="height:' + h + 'px"></i>';
+    }
+    return out + "</span>";
+  }
+
+  function renderKpi() {
+    var box = $("kpiStrip"); if (!box) return;
+    var st = statAll(), n = state.leads.length, i, l, zhuan = 0, done = 0, d = todayStr();
+    for (i = 0; i < n; i++) {
+      l = state.leads[i];
+      if (bizOf(l) === "携转") zhuan++;
+      if (l.follow === "已成单") done++;
+    }
+    var series = daySeries(7);
+    var items = [
+      { lb: "累计商机", v: n, u: "条", c: "var(--brand)", ft: "覆盖 9 个公开渠道", sp: series },
+      { lb: "今日新增", v: st.today, u: "条", c: "var(--brand-2)", ft: "近 7 日新增走势", sp: series },
+      { lb: "高意向", v: st.high, u: "条", c: "var(--hot)", ft: "占全部 " + pct(st.high, n) + "%" },
+      { lb: "待跟进", v: pendingLeads().length, u: "条", c: "var(--warn)", ft: "今日清空目标" },
+      { lb: "携转线索", v: zhuan, u: "条", c: "#c084fc", ft: "异网用户 · 优先级最高" },
+      { lb: "已成交", v: done, u: "单", c: "var(--ok)", ft: "转化 " + pct(done, n) + "%" }
+    ];
+    var html = "", it;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      html += '<div class="kpi" style="--kc:' + it.c + '">' +
+        '<div class="lb">' + it.lb + "</div>" +
+        '<div class="vl">' + it.v + "<em>" + it.u + "</em>" + (it.sp ? sparkHtml(it.sp) : "") + "</div>" +
+        '<div class="ft">' + it.ft + "</div></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function prodStat(p) {
+    var c = 0, h = 0, j, l;
+    for (j = 0; j < state.leads.length; j++) {
+      l = state.leads[j];
+      if (productOf(l) !== p.name) continue;
+      c++; if (l.level === "高") h++;
+    }
+    return { c: c, h: h };
+  }
+
+  function renderProdCards(boxId, list) {
+    var box = $(boxId); if (!box) return;
+    var i, p, s, max = 1, html = "", stats = [];
+    for (i = 0; i < list.length; i++) {
+      s = prodStat(list[i]);
+      if (s.c > max) max = s.c;
+      stats.push(s);
+    }
+    for (i = 0; i < list.length; i++) {
+      p = list[i]; s = stats[i];
+      html += '<div class="prod" style="--pc:' + p.color + '" data-prod="' + esc(p.name) + '" role="button" tabindex="0">' +
+        '<div class="pt"><i>' + esc(p.short) + "</i>" + esc(p.name) + "</div>" +
+        '<div class="pn">' + s.c + "<em>条</em></div>" +
+        '<div class="pb"><i style="width:' + Math.max(4, pct(s.c, max)) + '%"></i></div>' +
+        '<div class="pf"><span>' + esc(p.price) + "</span><b>高意向 " + s.h + "</b></div>" +
+        (p.subs && p.subs.length ? '<div class="psub">' + esc(p.subs.join(" · ")) + "</div>" : "") +
+        "</div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderFunnel() {
+    var box = $("funnelBox"); if (!box) return;
+    var RANK = { "待跟进": 0, "已联系": 1, "已加微": 2, "已成单": 3, "无效": -1 };
+    var reach = 0, contacted = 0, wechat = 0, done = 0, i, r;
+    for (i = 0; i < state.leads.length; i++) {
+      r = RANK[state.leads[i].follow];
+      if (r == null) r = 0;
+      if (r >= 0) reach++;
+      if (r >= 1) contacted++;
+      if (r >= 2) wechat++;
+      if (r >= 3) done++;
+    }
+    var rows = [["触达", reach, "var(--brand)"], ["已联系", contacted, "var(--info)"],
+                ["已加微", wechat, "var(--warn)"], ["已成单", done, "var(--ok)"]];
+    var base = reach || 1, html = "";
+    for (i = 0; i < rows.length; i++) {
+      html += '<div class="fn-row"><span class="fn-lb">' + rows[i][0] + "</span>" +
+        '<span class="fn-bar"><i style="width:' + Math.max(4, pct(rows[i][1], base)) +
+        "%;--fc:" + rows[i][2] + '"></i></span>' +
+        '<span class="fn-v">' + rows[i][1] + "<em>" + pct(rows[i][1], base) + "%</em></span></div>";
+    }
+    box.innerHTML = html;
+    var fs = $("funnelSub");
+    if (fs) fs.textContent = "触达 " + reach + " → 成单 " + done + " · 总转化 " + pct(done, base) + "%";
+  }
+
+  function renderPlatMatrix() {
+    var box = $("platMatrix"); if (!box) return;
+    var c = countBy(state.leads, function (l) { return l.platform; });
+    var i, v, html = "";
+    for (i = 0; i < PLATFORMS.length; i++) {
+      v = c[PLATFORMS[i]] || 0;
+      html += '<div class="plat-cell' + (v ? "" : " off") + '" role="button" tabindex="0" data-plat="' + esc(PLATFORMS[i]) + '">' +
+        '<span class="pd" style="background:' + P_COLOR[PLATFORMS[i]] + ";color:" + P_COLOR[PLATFORMS[i]] + '"></span>' +
+        '<span class="pname">' + esc(PLATFORMS[i]) + "</span>" +
+        '<span class="pnum">' + v + "</span></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function regionCounts() {
+    var m = {}, i, r;
+    for (i = 0; i < state.leads.length; i++) {
+      r = regionOf(state.leads[i]);
+      if (!r) continue;
+      m[r] = (m[r] || 0) + 1;
+    }
+    return m;
+  }
+
+  function heatBg(v, max) {
+    if (!v) return "var(--surface-2)";
+    var t = Math.min(1, v / (max || 1));
+    return "color-mix(in srgb, var(--brand) " + Math.round(12 + t * 62) + "%, var(--surface-2))";
+  }
+
+  function renderRegionHeat(boxId, limit) {
+    var box = $(boxId); if (!box) return;
+    var m = regionCounts(), max = 1, i, v, list = [], html = "";
+    for (i = 0; i < REGIONS.length; i++) if ((m[REGIONS[i]] || 0) > max) max = m[REGIONS[i]];
+    list = REGIONS.slice();
+    if (limit) {
+      list.sort(function (a, b) { return (m[b] || 0) - (m[a] || 0); });
+      list = list.slice(0, limit);
+      list.sort(function (a, b) { return REGIONS.indexOf(a) - REGIONS.indexOf(b); });
+    }
+    for (i = 0; i < list.length; i++) {
+      v = m[list[i]] || 0;
+      html += '<div class="heat-cell" role="button" tabindex="0" data-region="' + esc(list[i]) + '" style="--hc:' + heatBg(v, max) + '">' +
+        "<b>" + esc(list[i]) + "</b>" +
+        '<span class="hn">' + (v ? "商机 " + v + " 条" : "暂无") + "</span>" +
+        '<span class="hv">' + v + "</span></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderRegionDetail(region) {
+    var box = $("regionDetail"); if (!box) return;
+    var pick = region || (state.ui && state.ui.region) || REGIONS[0];
+    if (state.ui) state.ui.region = pick;
+    var nm = $("regionPickName"); if (nm) nm.textContent = pick;
+    var list = [], i, l;
+    for (i = 0; i < state.leads.length; i++) {
+      l = state.leads[i];
+      if (regionOf(l) !== pick) continue;
+      list.push(l);
+    }
+    list.sort(function (a, b) { return b.score - a.score; });
+    list = list.slice(0, 6);
+    if (!list.length) {
+      box.innerHTML = '<div class="empty"><span class="empty-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg></span><b>' + esc(pick) + " 还没有商机</b><span>去采集任务，关键词里带上区县名再跑一批</span></div>";
+      return;
+    }
+    var html = "";
+    for (i = 0; i < list.length; i++) {
+      l = list[i];
+      html += '<div class="today-item" data-open="' + esc(l.id) + '">' +
+        '<span class="avatar" style="background:' + avatarColor(l.name) + '">' + esc(initial(l.name)) + "</span>" +
+        '<div class="who"><div class="ti-name"><b>' + esc(l.name) + "</b>" +
+          '<span class="badge ' + (l.level === "高" ? "b-high" : (l.level === "中" ? "b-mid" : "b-low")) + '">' +
+          esc(l.level) + " " + esc(l.score) + "</span></div>" +
+          '<span class="ti-cmt">' + esc(l.comment) + "</span></div>" +
+        '<div class="ti-act"><button class="ti-more" data-open="' + esc(l.id) + '">详情</button></div></div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function renderRegionTips() {
+    var box = $("regionTips"); if (!box) return;
+    var pick = (state.ui && state.ui.region) || REGIONS[0];
+    var m = regionCounts(), n = m[pick] || 0;
+    var pm = {};
+    var i, l;
+    for (i = 0; i < state.leads.length; i++) {
+      l = state.leads[i];
+      if (regionOf(l) !== pick) continue;
+      var p = productOf(l);
+      pm[p] = (pm[p] || 0) + 1;
+    }
+    var top = "", tv = 0;
+    for (var k in pm) if (pm.hasOwnProperty(k) && pm[k] > tv) { tv = pm[k]; top = k; }
+    box.innerHTML =
+      '<div class="script" style="--pc:var(--brand)"><div class="sc-h">本地洞察</div><p>' +
+        esc(REGION_TIP[pick] || "按网格走访积累本地需求画像。") + "</p></div>" +
+      '<div class="script" style="--pc:var(--brand-2)"><div class="sc-h">当前数据</div><p>' +
+        "已归集 " + n + " 条商机" + (top ? "，其中「" + esc(top) + "」最多（" + tv + " 条），建议本周优先扫这个产品。" : "，建议先在采集任务里按区县名 + 产品词跑一批。") +
+        "</p></div>" +
+      '<div class="script" style="--pc:var(--warn)"><div class="sc-h">采集关键词建议</div><p>' +
+        "在关键词里带上区县简称（如「" + esc(pick.replace(/[区市县]$/, "")) + " 装宽带」「" + esc(pick.replace(/[区市县]$/, "")) + " 换手机」），命中率明显高于全省泛词。</p></div>";
+  }
+
+  function renderPlatGuide() {
+    var box = $("platGuide"); if (!box) return;
+    var txt = { ready: ["已跑通", "b-done"], beta: ["待实测", "b-mid"], manual: ["仅手工导入", "b-low"] };
+    var html = "", i, name, st, need, lg, on, cnt = 0;
+    for (i = 0; i < PLATFORMS.length; i++) {
+      name = PLATFORMS[i];
+      st = txt[P_STATUS[name]] || txt.beta;
+      need = !!P_NEED_LOGIN[name];
+      lg = loginState[name];
+      on = !!(lg && lg.ok);
+      if (on) cnt++;
+      html += '<div class="lg-row">' +
+        '<span class="lg-dot" style="background:' + P_COLOR[name] + '"></span>' +
+        '<div class="lg-main">' +
+          '<div class="lg-t"><b>' + esc(name) + '</b>' +
+            '<span class="badge ' + st[1] + '">' + st[0] + "</span>" +
+            (need ? '<span class="lg-needtx">需登录</span>' : "") +
+          "</div>" +
+          '<div class="lg-sub">' + esc(P_SCENE[name]) + "</div>" +
+        "</div>" +
+        (P_STATUS[name] === "manual" ? "" :
+          '<button type="button" class="lg-btn' + (on ? " lg-ok" : (need ? " lg-need" : "")) +
+            '" data-login="' + esc(name) + '">' + (on ? "已登录" : "去登录") + "</button>") +
+        "</div>";
+    }
+    box.innerHTML = html;
+    var sm = $("loginSummary");
+    if (sm) sm.textContent = cnt ? cnt + " / " + PLATFORMS.length + " 个渠道已登录" : "登录态存在本机";
+  }
+
+  function renderOpts() {
+    var sel = state.sel, i, html, p;
+    var pb = $("optProducts");
+    if (pb) {
+      html = "";
+      for (i = 0; i < PRODUCTS.length; i++) {
+        p = PRODUCTS[i];
+        var on = sel.products.indexOf(p.name) >= 0;
+        html += '<button class="chip pr' + (on ? " on" : "") + '" data-selprod="' + esc(p.name) +
+          '" style="--pc:' + p.color + '"><span class="pd" style="background:' + p.color + '"></span>' +
+          esc(p.name) + "</button>";
+      }
+      pb.innerHTML = html;
+      var tip = $("optProdTip");
+      if (tip) tip.textContent = sel.products.length ? sel.products.length + " 个已选" : "未选";
+    }
+    var lb = $("optPlatforms");
+    if (lb) {
+      html = "";
+      for (i = 0; i < PLATFORMS.length; i++) {
+        var onp = sel.platforms.indexOf(PLATFORMS[i]) >= 0;
+        var st = P_STATUS[PLATFORMS[i]];
+        html += '<button class="chip' + (onp ? " on" : "") + (st === "manual" ? " off" : "") +
+          '" data-selplat="' + esc(PLATFORMS[i]) + '">' +
+          '<span class="pd" style="background:' + P_COLOR[PLATFORMS[i]] + '"></span>' +
+          esc(PLATFORMS[i]) + "</button>";
+      }
+      lb.innerHTML = html;
+      var t2 = $("optPlatTip");
+      if (t2) t2.textContent = sel.platforms.length + " 个";
+    }
+    var rb = $("optRegion");
+    if (rb) {
+      html = "";
+      for (i = 0; i < REGION_MODES.length; i++) {
+        html += '<button class="chip' + (sel.region === REGION_MODES[i].k ? " on" : "") +
+          '" data-selreg="' + REGION_MODES[i].k + '">' + esc(REGION_MODES[i].label) + "</button>";
+      }
+      for (i = 0; i < REGIONS.length; i++) {
+        html += '<button class="chip' + (sel.region === REGIONS[i] ? " on" : "") + '" data-selreg="' +
+          esc(REGIONS[i]) + '">' + esc(REGIONS[i]) + "</button>";
+      }
+      rb.innerHTML = html;
+      var rtip = $("optRegionTip");
+      if (rtip) {
+        if (sel.region === "none") rtip.textContent = "不限 · 全国";
+        else if (sel.region === "all") rtip.textContent = "温州全域";
+        else rtip.textContent = sel.region;
+      }
+    }
+  }
+
+  function renderProdLines() {
+    renderProdCards("prodLines", PRODUCTS);
+  }
+
+  function renderProdKw() {
+    var box = $("prodKwBox"); if (!box) return;
+    var html = "", i, j, p;
+    for (i = 0; i < PRODUCTS.length; i++) {
+      p = PRODUCTS[i];
+      html += '<div><div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">' +
+        '<span class="badge b-tag" style="background:' + p.color + '22;color:' + pcText(p.color) + ";border-color:" + p.color + '55">' +
+        esc(p.short) + "</span>" +
+        '<b style="font-size:var(--f-ui);font-weight:650">' + esc(p.name) + "</b>" +
+        '<span style="font-size:var(--f-micro);color:var(--ink-3)">' + esc(p.price) + "</span></div>" +
+        '<div class="chips">';
+      for (j = 0; j < p.kws.length; j++) {
+        html += '<button class="chip" data-kwgo="' + esc(p.kws[j]) + '">' + esc(p.kws[j]) + "</button>";
+      }
+      html += "</div></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderScripts() {
+    var box = $("scriptBox"); if (!box) return;
+    var html = "", i, p;
+    for (i = 0; i < PRODUCTS.length; i++) {
+      p = PRODUCTS[i];
+      html += '<div class="script" style="--pc:' + p.color + '">' +
+        '<div class="sc-h"><span class="badge b-tag" style="background:' + p.color + '22;color:' + pcText(p.color) +
+        ";border-color:" + p.color + '55">' + esc(p.name) + "</span>" +
+        "<span>痛点：" + esc((p.pain || []).join(" / ")) + "</span>" +
+        '<button class="mini-btn ghost sc-copy" data-copy="' + esc(p.script) + '">复制</button></div>' +
+        "<p>" + esc(p.script) + "</p></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderLeadFilters() {
+    var fp = $("fPlatform"), fr = $("fRegion"), fb = $("fBiz"), i, html;
+    if (fp && fp.options.length <= 1) {
+      html = '<option value="all">全部渠道</option>';
+      for (i = 0; i < PLATFORMS.length; i++) html += '<option value="' + esc(PLATFORMS[i]) + '">' + esc(PLATFORMS[i]) + "</option>";
+      fp.innerHTML = html;
+    }
+    if (fr && fr.options.length <= 1) {
+      html = '<option value="all">全部地域</option>';
+      for (i = 0; i < REGIONS.length; i++) html += '<option value="' + esc(REGIONS[i]) + '">' + esc(REGIONS[i]) + "</option>";
+      fr.innerHTML = html;
+    }
+    if (fb && fb.options.length <= 1) {
+      html = '<option value="all">全部类型</option>';
+      for (i = 0; i < BIZ_TYPES.length; i++) html += '<option value="' + esc(BIZ_TYPES[i]) + '">' + esc(BIZ_TYPES[i]) + "</option>";
+      fb.innerHTML = html;
+    }
+  }
+
+  function renderChips() {
+    var box = $("chips"), html = "", i;
+    var bolt = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#7c3aed"><path d="M13 2L4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5z"/></svg>';
+    for (i = 0; i < QUICK_KWS.length; i++) {
+      html += '<button class="chip" data-kw="' + esc(QUICK_KWS[i]) + '">' + bolt + esc(QUICK_KWS[i]) + "</button>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderToday() {
+    var box = $("todayList"), list = pendingLeads().slice(0, 5), html = "", i, l;
+    var all = pendingLeads();
+    $("todayCount").textContent = all.length;
+
+    if (!list.length) {
+      box.innerHTML = '<div class="empty" style="padding:30px 14px">' +
+        '<span class="empty-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></span>' +
+        "<b>今天没有待跟进的商机</b>" +
+        "<span>去「采集任务」按产品跑一批，宽带和流量最容易出单</span></div>";
+      return;
+    }
+
+    for (i = 0; i < list.length; i++) {
+      l = list[i];
+      var over = !isToday(l.time);
+      var lvlCls = l.level === "高" ? "b-high" : (l.level === "中" ? "b-mid" : "b-low");
+      var prod = productOf(l), pc = prodOfName(prod) ? prodOfName(prod).color : "var(--ink-3)";
+      var reg = regionOf(l);
+      html += '<div class="today-item" data-open="' + esc(l.id) + '">' +
+        '<span class="avatar" style="background:' + avatarColor(l.name) + '">' + esc(initial(l.name)) + "</span>" +
+        '<div class="who">' +
+          '<div class="ti-name"><b' + BIND_L + ">" + esc(l.name) + "</b>" +
+            '<span class="badge" style="background:' + pc + '22;color:' + pcText(pc) + ";border-color:" + pc + '55">' + esc(prod) + "</span>" +
+            (over ? '<span class="badge overtag">超24h</span>' : "") +
+          "</div>" +
+          '<span class="ti-cmt"' + BIND_L + ">" + (reg ? esc(reg) + " · " : "") + esc(l.comment) + "</span>" +
+        "</div>" +
+        '<div class="ti-act">' +
+          '<span class="badge ' + lvlCls + '">' + esc(l.level) + " " + esc(l.score) + "</span>" +
+          '<button class="ti-done" data-done="' + esc(l.id) + '">已联系</button>' +
+        "</div></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderChatWelcome() {
+    var box = $("chatBody");
+    box.innerHTML =
+      '<div class="msg bot"><div class="bubble">' +
+      '<b>等待任务。</b>输入关键词后点「开始采集」，执行过程会实时显示在这里。' +
+      '<div class="steps">' +
+        '<div class="step"><span class="ico"></span><span class="txt"><strong>连接本地采集器</strong>' +
+          '<i>检查本机服务与抖音 / 小红书登录态</i></span></div>' +
+        '<div class="step"><span class="ico"></span><span class="txt"><strong>抓取公开评论区</strong>' +
+          '<i>按关键词搜索相关内容，逐条读取公开评论</i></span></div>' +
+        '<div class="step"><span class="ico"></span><span class="txt"><strong>识别购买意向</strong>' +
+          '<i>命中的客户写入云端，并进入右侧今日待跟进</i></span></div>' +
+      '</div></div></div>';
+  }
+
+  /* ================= 渲染：采集数据 ================= */
+  function renderCollectStats() {
+    var box = $("collectStats");
+    if (!box) return;   /* v3 采集页用任务表代替统计卡 */
+  }
+
+  function card(label, val, unit, cls) {
+    return '<div class="stat"><span>' + label + '</span><b class="' + cls + '"' + BIND_T + ">" + val +
+      "<em>" + unit + "</em></b></div>";
+  }
+
+  function renderTasks() {
+    var box = $("taskRows"), list = sortByTimeDesc(state.tasks), html = "", i, t;
+    if (!list.length) {
+      box.innerHTML = '<div class="empty"><b>还没有采集任务</b><span>去工作台输入关键词开始第一次采集</span></div>';
+      return;
+    }
+    for (i = 0; i < list.length; i++) {
+      t = list[i];
+      var rate = t.scanned ? ((t.found / t.scanned) * 100).toFixed(1) + "%" : "—";
+      html += '<div class="tr clickable" data-task="' + esc(t.batch) + '">' +
+        '<div class="td"><b style="font-weight:600"' + BIND_T + ">" + esc(t.keyword) + "</b>" +
+          '<div class="muted" style="font-size:11px">' + esc(t.time) + "</div></div>" +
+        '<div class="td ellip muted" data-l="平台">' + esc(t.platforms) + "</div>" +
+        '<div class="td" data-l="扫描"' + BIND_T + ">" + t.scanned + "</div>" +
+        '<div class="td" data-l="识别"><b style="color:var(--brand-strong)"' + BIND_T + ">" + t.found + "</b></div>" +
+        '<div class="td" data-l="高意向"' + BIND_T + ">" +
+          (t.high > 0 ? '<b style="color:var(--hot)">' + t.high + "</b>" : '<span class="muted">0</span>') +
+          "</div>" +
+        '<div class="td muted" data-l="意向率">' + rate + "</div>" +
+        '<div class="td" data-l="状态"><span class="badge b-done">' + esc(t.status) + "</span></div>" +
+        "</div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function renderTaskDetail() {
+    var card = $("taskDetail"), t = null, i;
+    for (i = 0; i < state.tasks.length; i++) { if (state.tasks[i].batch === state.activeTask) { t = state.tasks[i]; break; } }
+    if (!t) { card.style.display = "none"; return; }
+
+    var mine = [], j;
+    for (j = 0; j < state.leads.length; j++) { if (state.leads[j].batch === t.batch) mine.push(state.leads[j]); }
+    mine.sort(function (a, b) { return b.score - a.score; });
+
+    /* 平台分布 */
+    var dist = {}, k;
+    for (k = 0; k < mine.length; k++) { dist[mine[k].platform] = (dist[mine[k].platform] || 0) + 1; }
+    var maxv = 1;
+    for (k in dist) { if (dist.hasOwnProperty(k) && dist[k] > maxv) maxv = dist[k]; }
+
+    var bars = "", distHtml = "";
+    for (k in dist) {
+      if (!dist.hasOwnProperty(k)) continue;
+      var pct = Math.round((dist[k] / maxv) * 100);
+      distHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">' +
+        '<span style="width:52px;font-size:12px;color:var(--ink-3)">' + esc(k) + "</span>" +
+        '<div style="flex:1;height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden">' +
+        '<div style="width:' + pct + "%;height:100%;border-radius:99px;background:" + (P_COLOR[k] || "#6d28d9") + '"></div></div>' +
+        '<span style="font-size:12px;color:var(--ink-3);width:22px;text-align:right;font-variant-numeric:tabular-nums">' + dist[k] + "</span></div>";
+    }
+
+    for (k = 0; k < mine.length; k++) {
+      var m = mine[k];
+      bars += '<div class="today-item">' +
+        '<span class="avatar" style="background:' + avatarColor(m.name) + '">' + esc(initial(m.name)) + "</span>" +
+        '<div class="who"><b>' + esc(m.name) + ' <span class="plat" style="font-weight:400"><i class="pd" style="background:' +
+          (P_COLOR[m.platform] || "#999") + '"></i>' + esc(m.platform) + "</span></b>" +
+        "<span>" + esc(m.comment) + "</span></div>" +
+        '<span class="badge ' + (m.level === "高" ? "b-high" : (m.level === "中" ? "b-mid" : "b-low")) + '">' +
+          esc(m.level) + " " + esc(m.score) + "</span>" +
+        '<button class="mini-btn ghost" data-open="' + esc(m.id) + '">详情</button></div>';
+    }
+
+    card.style.display = "block";
+    card.innerHTML =
+      '<div class="card-head"><h3>任务明细 · ' + esc(t.keyword) + "</h3>" +
+        '<button class="mini-btn ghost" id="taskClose">收起</button></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px">' +
+        miniKv("批次", t.batch) + miniKv("采集时间", t.time) + miniKv("扫描内容", t.scanned + " 条") +
+        miniKv("识别意向", t.found + " 位") + miniKv("高意向", t.high + " 位") + miniKv("耗时", t.cost) +
+      "</div>" +
+      (distHtml ? '<div class="dw-sec"><h4 style="margin-bottom:8px">平台来源分布</h4>' + distHtml + "</div>" : "") +
+      '<div class="dw-sec"><h4 style="margin-bottom:8px">本批次命中客户（' + mine.length + "）</h4>" +
+        (mine.length ? bars : '<div class="muted">该批次未识别到意向客户</div>') + "</div>";
+  }
+
+  function miniKv(k, v) {
+    return '<div style="border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface-2)">' +
+      '<div style="font-size:11px;color:var(--ink-3)">' + esc(k) + "</div>" +
+      '<div style="font-size:13px;color:var(--ink);font-weight:600;word-break:break-all;font-variant-numeric:tabular-nums">' + esc(v) + "</div></div>";
+  }
+
+  /* ================= 渲染：意向客户 ================= */
+  function renderLeads() {
+    var st = statAll();
+    renderLeadFilters();
+
+    $("leadsSub").textContent = "共 " + st.total + " 条商机 · 温州全域 · 9 个公开渠道的公开评论，AI 自动识别购买意向";
+
+    $("liveStats").innerHTML =
+      liveStat(st.total, "累计商机", "c-purple") +
+      liveStat(st.today, "今日新增", "c-green") +
+      liveStat(st.high, "高意向", "c-red") +
+      liveStat(pendingLeads().length, "待跟进", "c-orange") +
+      liveStat(st.lastFound, "本次采集", "c-cyan");
+
+    var counts = {}, i, l;
+    for (i = 0; i < state.leads.length; i++) {
+      l = state.leads[i];
+      var pn = productOf(l);
+      counts[pn] = (counts[pn] || 0) + 1;
+    }
+    var keys = [];
+    for (var k in counts) { if (counts.hasOwnProperty(k)) keys.push(k); }
+    keys.sort(function (a, b) { return counts[b] - counts[a]; });
+
+    var tabHtml = '<button class="tab' + (state.filters.industry === "all" ? " active" : "") +
+      '" data-ind="all">全部 <u>' + st.total + "</u></button>";
+    for (i = 0; i < keys.length; i++) {
+      tabHtml += '<button class="tab' + (state.filters.industry === keys[i] ? " active" : "") +
+        '" data-ind="' + esc(keys[i]) + '">' + esc(keys[i]) + " <u>" + counts[keys[i]] + "</u></button>";
+    }
+    $("industryTabs").innerHTML = tabHtml;
+
+    var rows = filteredLeads(), html = "", lb = latestBatch();
+    for (i = 0; i < rows.length; i++) {
+      l = rows[i];
+      var isNew = l.batch === lb ? ' <span class="b-new">NEW</span>' : "";
+      var pr = productOf(l), pm = prodOfName(pr);
+      var pc = pm ? pm.color : "var(--ink-3)";
+      var biz = bizOf(l), reg = regionOf(l);
+      html += '<div class="tr clickable" data-open="' + esc(l.id) + '">' +
+        '<div class="td"><div class="who-cell"><span class="avatar" style="background:' + avatarColor(l.name) + '">' +
+          esc(initial(l.name)) + '</span><b' + BIND_L + ">" + esc(l.name) + "</b>" + isNew + "</div></div>" +
+        '<div class="td" data-l="渠道"><span class="plat"><i class="pd" style="background:' +
+          (P_COLOR[l.platform] || "#999") + '"></i>' + esc(l.platform) + "</span></div>" +
+        '<div class="td" data-l="评论"><div class="cmt"' + BIND_L + ">" + hl(l.comment) + "</div></div>" +
+        '<div class="td" data-l="产品"><span class="badge" style="background:' + pc + "22;color:" + pc +
+          ";border-color:" + pc + '55">' + esc(pr) + "</span></div>" +
+        '<div class="td" data-l="类型"><span class="badge ' + (BIZ_CLASS[biz] || "b-low") + '">' + esc(biz) + "</span></div>" +
+        '<div class="td" data-l="意向"><span class="badge ' + (l.level === "高" ? "b-high" : (l.level === "中" ? "b-mid" : "b-low")) +
+          '">' + esc(l.level) + " " + esc(l.score) + "</span></div>" +
+        '<div class="td" data-l="状态"><span class="badge ' + (FOLLOW_CLASS[l.follow] || "b-follow") + '">' +
+          esc(l.follow) + "</span></div>" +
+        "</div>";
+    }
+    $("leadRows").innerHTML = html;
+    $("leadsEmpty").style.display = rows.length ? "none" : "block";
+
+    /* 地域信息挂在评论下方的小字里，手机上也不丢 */
+    var sub = rows.length ? ("当前筛选 " + rows.length + " 条" + (reg0(rows) ? " · " + reg0(rows) : "") + " · 点任意一行看跟进明细") : "";
+    var el = $("leadsTableNote");
+    if (el) el.textContent = sub;
+  }
+
+  function reg0(rows) {
+    var m = {}, i, r, best = "", bv = 0;
+    for (i = 0; i < rows.length; i++) { r = regionOf(rows[i]); if (r) m[r] = (m[r] || 0) + 1; }
+    for (var k in m) if (m.hasOwnProperty(k) && m[k] > bv) { bv = m[k]; best = k; }
+    return best;
+  }
+
+  function liveStat(v, label, cls) {
+    return '<div><b class="' + cls + '"' + BIND_L + ">" + v + "</b><span>" + label + "</span></div>";
+  }
+
+  /* ================= 渲染：抽屉 ================= */
+  var dwFollow = "待跟进";
+
+  function findLead(id) {
+    for (var i = 0; i < state.leads.length; i++) { if (state.leads[i].id === id) return state.leads[i]; }
+    return null;
+  }
+
+  function renderDrawer() {
+    var l = findLead(state.drawerId);
+    if (!l) return;
+    dwFollow = l.follow;
+
+    $("dwName").innerHTML = esc(l.name) + ' <span class="badge ' +
+      (l.level === "高" ? "b-high" : (l.level === "中" ? "b-mid" : "b-low")) + '" style="margin-left:4px">' +
+      esc(l.level) + "意向 " + esc(l.score) + "</span>";
+    $("dwSub").textContent = l.platform + " · " + l.industry + " · " + l.time;
+
+    var chips = "", i;
+    for (i = 0; i < FOLLOWS.length; i++) {
+      chips += '<button class="fchip' + (FOLLOWS[i] === l.follow ? " on" : "") + '" data-fw="' +
+        esc(FOLLOWS[i]) + '">' + esc(FOLLOWS[i]) + "</button>";
+    }
+
+    $("dwBody").innerHTML =
+      '<div class="dw-sec"><h4>原始评论</h4><div class="dw-quote">' + hl(l.comment) + "</div></div>" +
+      '<div class="dw-sec"><h4>AI 识别信息</h4><dl class="dw-kv">' +
+        "<dt>来源平台</dt><dd>" + esc(l.platform) + "</dd>" +
+        "<dt>行业分类</dt><dd>" + esc(l.industry) + "</dd>" +
+        "<dt>命中关键词</dt><dd>" + (l.keywords ? esc(l.keywords) : "—") + "</dd>" +
+        "<dt>采集关键词</dt><dd>" + esc(l.taskKw || "—") + "</dd>" +
+        "<dt>意向分</dt><dd>" + esc(l.score) + " / 100</dd>" +
+        "<dt>批次</dt><dd style=\"font-size:12px;color:#8b86a0\">" + esc(l.batch || "—") + "</dd>" +
+      "</dl></div>" +
+      '<div class="dw-sec"><h4>跟进状态</h4><div class="chipset" id="dwChips">' + chips + "</div></div>" +
+      '<div class="dw-sec"><h4>跟进备注</h4><textarea class="dw-textarea" id="dwNote" placeholder="例如：已加微信，报价 3800 元/套，周五回访">' +
+        esc(l.note) + "</textarea></div>";
+
+    $("dwNext").textContent = l.follow === "待跟进" ? "标记已联系" : "标记已成单";
+  }
+
+  /* ================= 统一刷新入口（单向，渲染函数互不调用） ================= */
+  function refreshAll() {
+    renderChips();
+    renderOpts();
+    renderKpi();
+    renderProdCards("prodGrid", HOME_PRODS.map(prodOfName).filter(Boolean));
+    renderFunnel();
+    renderPlatMatrix();
+    renderRegionHeat("regionHeat", 8);
+    renderToday();
+    renderTasks();
+    renderTaskDetail();
+    renderLeads();
+    if (state.page === "products") { renderProdLines(); renderProdKw(); renderScripts(); }
+    if (state.page === "region") { renderRegionHeat("regionHeatFull", 0); renderRegionDetail(); renderRegionTips(); }
+    if (state.page === "collect") renderPlatGuide();
+    var nb = $("navLeads"); if (nb) nb.textContent = state.leads.length;
+    if (state.drawerId) renderDrawer();
+  }
+
+  /* ================= 导航 ================= */
+  function goto(page) {
+    if (!page) return;
+    state.page = page;
+    var navs = document.querySelectorAll(".nav-item"), i;
+    for (i = 0; i < navs.length; i++) {
+      navs[i].classList.toggle("active", navs[i].getAttribute("data-page") === page);
+    }
+    var pages = document.querySelectorAll(".page");
+    for (i = 0; i < pages.length; i++) { pages[i].classList.remove("active"); }
+    var target = $("page-" + page);
+    if (target) target.classList.add("active");
+    var meta = PAGE_META[page];
+    if (meta) {
+      var t = $("pageTitle"), s = $("pageSub");
+      if (t) t.textContent = meta[0];
+      if (s) s.textContent = meta[1];
+    }
+    refreshAll();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* ================= 聊天 ================= */
+  function scrollChat() {
+    var b = $("chatBody");
+    b.scrollTop = b.scrollHeight;
+  }
+
+  function chatMsg(role, html) {
+    var body = $("chatBody");
+    var d = document.createElement("div");
+    d.className = "msg " + role;
+    d.innerHTML = '<div class="bubble">' + html + "</div>";
+    body.appendChild(d);
+    scrollChat();
+    return d;
+  }
+
+  function delay(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  var STEPS = [
+    ["拆解获客任务", "解析关键词、目标人群与购买阶段"],
+    ["规划搜索范围", "抖音 / 小红书 / 快手 / 微博 / 闲鱼 / B站 / 知乎 / 58同城"],
+    ["扫描公开评论区", "定位含购买信号的评论内容"],
+    ["识别购买意向", "过滤闲聊、广告与水军，判断意向强度"],
+    ["写入意向客户库", "去重后统一归档，等待跟进"]
+  ];
+
+  function buildRunHtml(kw) {
+    var html = '<div>收到任务：<b>「' + esc(kw) + '」</b>，开始执行全平台采集…</div><div class="steps" id="runSteps">';
+    for (var i = 0; i < STEPS.length; i++) {
+      html += '<div class="step"><span class="ico"></span><span class="txt"><strong>' + STEPS[i][0] +
+        "</strong><i>" + STEPS[i][1] + "</i></span></div>";
+    }
+    html += '</div><div class="progress"><div class="bar"></div></div>';
+    return html;
+  }
+
+  /* ================= 本地采集器对接 ================= */
+  /* 页面跑在云端，没法直接启动你电脑上的程序。
+     所以本机跑 collector/agent_server.py，页面通过 HTTP 调它：
+     点「开始采集」→ 本地服务驱动浏览器采集 → 回传数据 → 页面用自己的登录态写云端。
+
+     AGENT 地址自动判断（两种打开方式都能用）：
+     · 从 http://127.0.0.1:8765/app 打开 → 与 API 同源，直接留空走相对路径
+       （这是推荐方式：Chrome 会拦 https 页面访问本地，同源则完全不受限）
+     · 从云端 https://www.workbuddy.cn/... 打开 → 用绝对地址 127.0.0.1:8765 */
+  var AGENT = (function () {
+    var h = location.hostname;
+    /* 页面由本地服务自己托管时（任意端口）一律走同源，避免 Chrome 拦截跨到 127.0.0.1 的请求 */
+    if (h === "127.0.0.1" || h === "localhost" || h === "[::1]") return "";
+    return "http://127.0.0.1:" + (location.port || "8765");
+  })();
+  var agentState = { ok: false, health: null };
+
+  function withTimeout(p, ms) {
+    return new Promise(function (resolve, reject) {
+      var t = setTimeout(function () { reject(new Error("TIMEOUT")); }, ms);
+      p.then(function (v) { clearTimeout(t); resolve(v); },
+             function (e) { clearTimeout(t); reject(e); });
+    });
+  }
+
+  /* 用 text/plain 发，属于「简单请求」，不触发 CORS 预检，命中率更高 */
+  function agentReq(path, opts) {
+    opts = opts || {};
+    var init = { method: opts.method || "GET", cache: "no-store" };
+    if (opts.body) {
+      init.headers = { "Content-Type": "text/plain;charset=UTF-8" };
+      init.body = JSON.stringify(opts.body);
+    }
+    var req = fetch(AGENT + path, init).then(function (r) {
+      return r.text().then(function (t) {
+        var d;
+        try { d = JSON.parse(t); } catch (e) { d = { ok: false, error: "本地服务返回格式异常" }; }
+        if (!r.ok && !d.error) d.error = "HTTP " + r.status;
+        return d;
+      });
+    });
+    return withTimeout(req, opts.timeout || 8000);
+  }
+
+  function updateAgentBar(h) {
+    agentState.ok = !!(h && h.ok);
+    agentState.health = h;
+    var dot = $("agentDot"), txt = $("agentTxt");
+    if (!dot || !txt) return;
+    if (agentState.ok) {
+      dot.className = "agent-dot on";
+      var kw = (h.config && h.config.keywords) || [];
+      txt.innerHTML = "<b>采集器已连接</b>" +
+        (h.logined ? " · 登录态有效" : ' · <b style="color:var(--warn)">尚未登录抖音 / 小红书</b>') +
+        (h.busy ? ' · <b style="color:var(--brand-strong)">正在采集</b>' : " · 空闲") +
+        (kw.length ? " · 默认关键词 " + esc(kw.join(" / ")) : "");
+    } else {
+      dot.className = "agent-dot warn";
+      txt.innerHTML = "<b>采集器未连接</b> — 双击桌面 LineRadar.bat 重新打开工作台，会自动启动采集器";
+    }
+  }
+
+  function checkAgent() {
+    return withTimeout(agentReq("/health", { timeout: 2500 }), 3200)
+      .then(function (h) {
+        updateAgentBar(h);
+        if (h && h.ok) startHeartbeat();   /* 服务在就保持心跳，防止它以为没人用而退出 */
+        return h;
+      })
+      .catch(function () { updateAgentBar(null); return null; });
+  }
+
+  /* ================= 生命周期：页面开着就心跳，关掉就通知服务退出 =================
+     服务端逻辑：一个页面都不剩、且没有任务在跑，持续 N 秒后自动退出。
+     用 sessionStorage 存 client id —— 刷新后 id 不变，所以 F5 不会把自己踢下线。 */
+  var CLIENT_ID = (function () {
+    try {
+      var k = "huoke_client_id";
+      var v = sessionStorage.getItem(k);
+      if (!v) {
+        v = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        sessionStorage.setItem(k, v);
+      }
+      return v;
+    } catch (e) {
+      return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+  })();
+  var beatTimer = null;
+
+  function agentBeat() {
+    agentReq("/heartbeat", { method: "POST", body: { client: CLIENT_ID }, timeout: 5000 })
+      .then(function (d) {
+        if (d && d.ok) startHeartbeat();   /* 服务重启过也没关系，下一拍自动接上 */
+      })
+      .catch(function () {});
+  }
+
+  function startHeartbeat() {
+    if (beatTimer) return;
+    beatTimer = setInterval(agentBeat, 15000);
+    agentBeat();   /* 立刻报一次，不等 15 秒 */
+  }
+
+  function stopHeartbeat() {
+    if (beatTimer) { clearInterval(beatTimer); beatTimer = null; }
+  }
+
+  window.addEventListener("pagehide", function () {
+    stopHeartbeat();
+    var payload = JSON.stringify({ client: CLIENT_ID });
+    try {
+      if (navigator.sendBeacon) {
+        var blob = new Blob([payload], { type: "text/plain;charset=UTF-8" });
+        if (navigator.sendBeacon(AGENT + "/bye", blob)) return;
+      }
+    } catch (e) { /* 落到下面的 keepalive fetch */ }
+    try {
+      fetch(AGENT + "/bye", {
+        method: "POST",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: payload
+      });
+    } catch (e) {}
+  });
+
+  /* ================= 采集主流程（真实） ================= */
+  var running = false;
+
+  var REAL_STEPS = [
+    ["连接本地采集器", "校验服务与抖音/小红书登录态"],
+    ["下发采集任务", "按关键词搜索目标内容"],
+    ["扫描评论区", "逐个内容抓公开评论"],
+    ["识别并入库", "意向打分、过滤闲聊，写入意向客户"]
+  ];
+
+  function buildRealRunHtml(kw) {
+    var html = '<div>收到任务：<b>「' + esc(kw) + '」</b>，正在调用本地采集器抓真实评论…</div><div class="steps" id="runSteps">';
+    for (var i = 0; i < REAL_STEPS.length; i++) {
+      html += '<div class="step"><span class="ico"></span><span class="txt"><strong>' + REAL_STEPS[i][0] +
+        "</strong><i>" + REAL_STEPS[i][1] + "</i></span></div>";
+    }
+    html += '</div><div class="progress"><div class="bar"></div></div><div class="live-log"></div>';
+    return html;
+  }
+
+  /* 轮询本地任务状态；onTick 用于刷进度 */
+  function pollJob(jobId, onTick) {
+    return new Promise(function (resolve, reject) {
+      var lastLen = -1, idle = 0;
+      function tick() {
+        agentReq("/status?job=" + encodeURIComponent(jobId) + "&rows=1", { timeout: 10000 })
+          .then(function (d) {
+            if (!d || d.ok === false) { reject(new Error((d && d.error) || "状态查询失败")); return; }
+            if (onTick) onTick(d);
+            if (d.status === "done" || d.status === "error" || d.status === "cancelled") { resolve(d); return; }
+            var n = (d.logs && d.logs.length) || 0;
+            if (n === lastLen) { idle++; } else { idle = 0; lastLen = n; }
+            if (idle > 420) { reject(new Error("采集长时间无响应（约 9 分钟）")); return; }
+            setTimeout(tick, 1300);
+          })
+          .catch(function (e) {
+            idle++;
+            if (idle > 8) { reject(e); return; }
+            setTimeout(tick, 1600);
+          });
+      }
+      tick();
+    });
+  }
+
+  function uniqPlats(list) {
+    var seen = {}, out = [], i;
+    for (i = 0; i < list.length; i++) {
+      if (!list[i] || seen[list[i]]) continue;
+      seen[list[i]] = 1;
+      out.push(list[i]);
+    }
+    return out.join("、");
+  }
+
+  /* 0 条时给真实原因：服务端把每个平台的结论带回来了，不再一律甩"缓存命中" */
+  function zeroHint(diag, scanned) {
+    var need = [], noLinks = [], blocked = [], cached = [], other = [], i;
+    diag = diag || [];
+    for (i = 0; i < diag.length; i++) {
+      var r = diag[i].reason || "";
+      var who = diag[i].plat || "";
+      if (r === "need-login") need.push(who);
+      else if (r === "no-links") noLinks.push(who);
+      else if (r === "blocked") blocked.push(who);
+      else if (r === "cached") cached.push(who);
+      else if (r === "unsupported" || r === "error") other.push(who);
+    }
+    var body = "";
+    if (scanned > 0) {
+      body += "抓到 <b>" + scanned + "</b> 条评论，但都没命中意向关键词，所以不算新线索（原始内容在本地 CSV 里）。<br>";
+    }
+    if (need.length) {
+      body += "<b>" + uniqPlats(need) + "</b> 未登录，搜索页不给结果。到「采集任务」页点该平台的「去登录」，登录一次后自动复用。<br>";
+    }
+    if (noLinks.length) {
+      body += "<b>" + uniqPlats(noLinks) + "</b> 搜索页没解析到内容（该词没结果或页面改版），换个关键词再试。<br>";
+    }
+    if (blocked.length) {
+      body += "<b>" + uniqPlats(blocked) + "</b> 触发了人机验证，在弹出的浏览器窗口里滑一下再重试。<br>";
+    }
+    if (cached.length) {
+      body += "<b>" + uniqPlats(cached) + "</b> 这批内容之前采过（断点缓存）。换个关键词，或删掉 collector\\collected_cache.json。<br>";
+    }
+    if (other.length) {
+      body += "<b>" + uniqPlats(other) + "</b> 暂未支持或采集报错。<br>";
+    }
+    if (!body) body = "本次没抓到新线索，换个关键词再试。";
+    return '<div style="margin-top:8px;font-size:12px;line-height:1.8;color:#b45309">' + body + "</div>";
+  }
+  window.__zeroHint = zeroHint;   // 便于自检与排查，无副作用
+
+  function onCollect(skipLoginCheck) {
+    if (running) return;
+    var sel = state.sel;
+    var typed = ($("kwInput").value || "").trim();
+    var kwList = [], i, j;
+
+    if (typed) {
+      kwList.push(typed);
+    } else if (sel.products.length) {
+      for (i = 0; i < sel.products.length; i++) {
+        var pp = prodOfName(sel.products[i]);
+        if (!pp) continue;
+        for (j = 0; j < Math.min(2, pp.kws.length); j++) kwList.push(pp.kws[j]);
+      }
+    }
+    if (!kwList.length) {
+      toast("先输入关键词，或选一个产品类目");
+      $("kwInput").focus();
+      return;
+    }
+
+    /* 地域前缀：温州本地为主；不限地域则不拼前缀 */
+    var regionPre = sel.region === "all" ? "温州 "
+      : (sel.region === "none" ? ""
+        : String(sel.region).replace(/[区市县]$/, "") + " ");
+    for (i = 0; i < kwList.length; i++) {
+      if (kwList[i].length > 40) kwList[i] = kwList[i].slice(0, 40);
+      if (regionPre && kwList[i].indexOf(regionPre.trim()) < 0) kwList[i] = regionPre + kwList[i];
+    }
+
+    var platNames = [], platCodes = [];
+    var picked = sel.platforms.length ? sel.platforms : ["抖音", "小红书"];
+    for (i = 0; i < picked.length; i++) {
+      var code = P_CODE[picked[i]];
+      if (!code || code === "manual") continue;
+      platNames.push(picked[i]);
+      platCodes.push(code);
+    }
+    if (!platCodes.length) {
+      toast("视频号没有公开搜索接口，请至少选一个可采集渠道");
+      return;
+    }
+
+    /* 需登录的渠道：未登录先引导去登录，避免跑空一趟 */
+    if (!skipLoginCheck) {
+      var noLg = [], k;
+      for (k = 0; k < platNames.length; k++) {
+        if (P_NEED_LOGIN[platNames[k]] && !(loginState[platNames[k]] && loginState[platNames[k]].ok)) {
+          noLg.push(platNames[k]);
+        }
+      }
+      if (noLg.length) {
+        askConfirm({
+          title: noLg.join("、") + " 还没登录",
+          desc: "这些渠道未登录时大概率返回 0 条，有的会直接跳到登录页。建议先登录：点「先去登录」会弹出浏览器窗口，扫码或输完账号后窗口自动关闭，登录态存在本机，之后采集直接复用。",
+          okText: "先去登录",
+          cancelText: "仍然采集"
+        }).then(function (go) {
+          if (go) loginPlatform(noLg[0]);
+          else onCollect(true);
+        });
+        return;
+      }
+    }
+
+    var taskPlats = platNames.join(" / ");
+    var kw = kwList[0].replace(/^(温州|鹿城|龙湾|瓯海|洞头|瑞安|乐清|永嘉|平阳|苍南|文成|泰顺|龙港)\s*/, "");
+
+    running = true;
+    state.running = true;
+    $("collectBtn").disabled = true;
+    $("collectBtnTxt").textContent = "采集中…";
+
+    var t0 = Date.now();
+    var now = new Date();
+    var timeStr = fmtTime(now);
+
+    chatMsg("user", "帮我找需要「" + esc(kw) + "」的客户");
+    var bubble = chatMsg("bot", buildRealRunHtml(kw));
+    var stepEls = bubble.querySelectorAll(".step");
+    var bar = bubble.querySelector(".bar");
+    var logBox = bubble.querySelector(".live-log");
+    var bodyEl = bubble.querySelector(".bubble");
+
+    var totalScan = 0, leads = [], batchReal = "", diagReal = [];
+
+    function setStep(i, cls, detail) {
+      if (!stepEls[i]) return;
+      stepEls[i].className = "step " + cls;
+      if (detail) stepEls[i].querySelector("i").textContent = detail;
+      if (cls === "done") {
+        stepEls[i].querySelector(".ico").innerHTML =
+          '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+      }
+    }
+    function setBar(p) { bar.style.width = Math.max(2, Math.min(100, p)) + "%"; }
+
+    /* 实时日志：只追加新增的部分 */
+    var logShown = 0;
+    function pushLog(lines) {
+      if (!logBox || !lines || !lines.length) return;
+      if (lines.length < logShown) logShown = 0;          // 被服务端环形队列截断过
+      var fresh = lines.slice(logShown);
+      logShown = lines.length;
+      if (!fresh.length) return;
+      logBox.className = "live-log on";
+      for (var i = 0; i < fresh.length; i++) {
+        var d = document.createElement("div");
+        d.textContent = fresh[i];
+        logBox.appendChild(d);
+      }
+      while (logBox.childNodes.length > 140) logBox.removeChild(logBox.firstChild);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function finish() {
+      running = false;
+      state.running = false;
+      $("collectBtn").disabled = false;
+      $("collectBtnTxt").textContent = "开始采集";
+      scrollChat();
+    }
+
+    setStep(0, "run");
+    setBar(4);
+
+    checkAgent().then(function (h) {
+      if (!h || !h.ok) throw new Error("NOAGENT");
+      setStep(0, "done", "已连接 127.0.0.1:8765" + (h.logined ? " · 登录态有效" : " · 未登录，浏览器会要求登录"));
+      setStep(1, "run");
+      setBar(12);
+      return agentReq("/collect", {
+        method: "POST",
+        timeout: 15000,
+        body: { keywords: kwList, platforms: platCodes, headless: false }
+      });
+    }).then(function (r) {
+      if (!r || !r.ok) throw new Error((r && r.error) || "任务下发失败");
+      setStep(1, "done", "任务 " + r.job + " 已下发，浏览器窗口会自动打开");
+      setStep(2, "run");
+      setBar(20);
+      return pollJob(r.job, function (d) {
+        if (d.stats) totalScan = d.stats.scanned || 0;
+        if (stepEls[2]) {
+          stepEls[2].querySelector("i").textContent =
+            (d.step || "采集中") + " · 已采 " + totalScan + " 条";
+        }
+        setBar(20 + (d.progress || 0) * 0.5);
+        pushLog(d.logs);
+      });
+    }).then(function (d) {
+      if (!d || d.status !== "done") {
+        throw new Error((d && (d.error || d.step)) || "采集未正常结束");
+      }
+      batchReal = d.batch || "";
+      totalScan = (d.stats && d.stats.scanned) || totalScan;
+      diagReal = d.diagnostics || [];
+      setStep(2, "done", "已扫描 " + totalScan + " 条公开评论");
+      setStep(3, "run");
+
+      var all = (d.rows || []).map(mapLeadFromRow);
+      /* 只把有意向信号的写进客户库：零命中的纯闲聊留在本地 CSV，不污染列表 */
+      var qual = [], i;
+      for (i = 0; i < all.length; i++) { if (all[i].score >= 45) qual.push(all[i]); }
+      leads = qual;
+      if (stepEls[3]) {
+        stepEls[3].querySelector("i").textContent =
+          "识别到 " + leads.length + " 条意向信号（共 " + all.length + " 条），正在写入云端…";
+      }
+      setBar(80);
+      return saveLeadsPool(leads, 5, function (done, n) {
+        setBar(80 + Math.round(18 * done / Math.max(1, n)));
+        if (stepEls[3]) {
+          stepEls[3].querySelector("i").textContent = "正在写入云端 " + done + "/" + n;
+        }
+      });
+    }).then(function () {
+      var high = 0, i;
+      for (i = 0; i < leads.length; i++) { if (leads[i].level === "高") high++; }
+      var cost = ((Date.now() - t0) / 1000).toFixed(1) + "s";
+      var task = {
+        id: batchReal, keyword: kw, platforms: taskPlats,
+        scanned: totalScan, found: leads.length, high: high,
+        cost: cost, status: "已完成", time: timeStr, batch: batchReal
+      };
+      state.tasks.push(task);
+      return Store.addTask(task);
+    }).then(function () {
+      return resyncFromCloud();
+    }).then(function () {
+      setStep(3, "done", "已归档到「意向客户」，可直接跟进");
+      setBar(100);
+      var high = 0, i;
+      for (i = 0; i < leads.length; i++) { if (leads[i].level === "高") high++; }
+      bodyEl.innerHTML = "<div>采集完成 · 关键词 <b>「" + esc(kw) + "」</b></div>" +
+        '<div class="result-box">' +
+          '<div style="font-size:12px;color:#8b86a0">批次 ' + esc(batchReal) + " · " + esc(timeStr) +
+          " · 耗时 " + esc(((Date.now() - t0) / 1000).toFixed(1)) + "s</div>" +
+          '<div class="result-grid">' +
+            "<div class='rg'><b>" + leads.length + "</b><span>意向客户</span></div>" +
+            "<div class='rg'><b style='color:#e5484d'>" + high + "</b><span>高意向</span></div>" +
+            "<div class='rg'><b style='color:#2f6fed'>" + totalScan + "</b><span>扫描评论</span></div>" +
+          "</div>" +
+          '<button class="link-btn" data-goto="leads">前往意向客户查看 →</button>' +
+        "</div>";
+      if (!leads.length) {
+        bodyEl.innerHTML += zeroHint(diagReal, totalScan);
+      }
+      Store.cacheLocal();
+      refreshAll();
+      toast("采集完成，新增 " + leads.length + " 位意向客户");
+    }).catch(function (err) {
+      console.error("[collect] 失败", err);
+      var msg = String((err && err.message) || err);
+      if (msg === "NOAGENT") {
+        var localPage = (AGENT === "");
+        bodyEl.innerHTML = '<div style="color:#b45309;font-weight:600">本地采集器没有响应</div>' +
+          '<div style="margin-top:8px;font-size:12px;line-height:1.9;color:#5b5570">' +
+          (localPage
+            ? "页面已从本地加载，但采集服务没在跑。请关掉这个页面，双击桌面的 <b>LineRadar.bat</b> 重新打开。"
+            : "你正在用云端页面，浏览器会拦截「https 页面访问本机」的请求。<br>" +
+              "解决办法：关掉本页，双击桌面的 <b>LineRadar.bat</b>，它会用本地方式打开同一个工作台。") +
+          "</div>" +
+          '<button class="mini-btn ghost" id="retryAgentBtn" style="margin-top:10px">重新检测</button>';
+        var rb = bodyEl.querySelector("#retryAgentBtn");
+        if (rb) rb.onclick = function () {
+          rb.textContent = "检测中…";
+          checkAgent().then(function (h) {
+            if (h && h.ok) { toast("已连接，再点「开始采集」即可"); rb.textContent = "已连接"; }
+            else { rb.textContent = "重新检测"; toast("还是连不上，确认 LineRadar.bat 的窗口没关"); }
+          });
+        };
+      } else {
+        bodyEl.innerHTML = "<div>采集中断：<b>" + esc(msg) + "</b></div>" +
+          '<div style="margin-top:8px;font-size:12px;line-height:1.8;color:#8b86a0">' +
+          "常见原因：抖音/小红书弹了人机验证没人处理（浏览器窗口里滑一下再重试）、" +
+          "或者登录态过期（重跑 collector\\init_login.bat）。<br>" +
+          "现场截图在 collector\\debug\\ 目录。</div>";
+      }
+      toast("采集未完成");
+    }).then(finish);
+  }
+
+  /* 有限并发写云端：逐条串行写几百条太慢 */
+  function saveLeadsPool(list, concurrency, onProgress) {
+    var i = 0, done = 0, n = list.length;
+    if (!n) return Promise.resolve();
+    function worker() {
+      if (i >= n) return Promise.resolve();
+      var l = list[i++];
+      state.leads.push(l);
+      return Store.addLead(l).then(function () {
+        done++;
+        if (onProgress) onProgress(done, n);
+        return worker();
+      });
+    }
+    var arr = [], k;
+    for (k = 0; k < Math.min(concurrency, n); k++) arr.push(worker());
+    return Promise.all(arr);
+  }
+
+  function saveLeads(list) {
+    var i = 0;
+    function next() {
+      if (i >= list.length) return Promise.resolve();
+      var l = list[i++];
+      state.leads.push(l);
+      return Store.addLead(l).then(next);
+    }
+    return next();
+  }
+
+  /* 采集后回读云端，补齐记录主键，保证后续跟进修改能落库 */
+  function resyncFromCloud() {
+    if (Store.mode !== "cloud") return Promise.resolve(false);
+    return Store.fetchLeads()
+      .then(function (rows) {
+        if (rows && rows.length) {
+          state.leads = rows.map(mapLeadFromRow);
+          Store.cacheLocal();
+        }
+        return true;
+      })
+      .catch(function (err) {
+        console.error("[collect] 回读失败，保留本地结果", err);
+        return false;
+      });
+  }
+
+  /* ================= 示例数据 & 重置 ================= */
+  /* 首次打开且本地 / 云端都没有数据时，灌一份本地示例（只进 localStorage，不写云端） */
+  function seedLocal() {
+    var seed = buildSeed();
+    state.leads = seed.leads;
+    state.tasks = seed.tasks;
+    Store.cacheLocal();
+  }
+
+  function seedData() {
+    var seed = buildSeed();
+    state.leads = seed.leads;
+    state.tasks = seed.tasks;
+    Store.cacheLocal();
+    if (Store.mode !== "cloud") return Promise.resolve();
+    var i = 0;
+    function nextLead() {
+      if (i >= seed.leads.length) return nextTask(0);
+      return Store.addLead(seed.leads[i++]).then(nextLead);
+    }
+    function nextTask(j) {
+      if (j >= seed.tasks.length) return Promise.resolve();
+      return Store.addTask(seed.tasks[j++]).then(nextTask);
+    }
+    return nextLead();
+  }
+
+  function resetDemo() {
+    if (!window.confirm("将会清空当前全部客户与采集任务，并重新写入示例数据。确定继续？")) return;
+    Store.clearAll().then(function () {
+      state.leads = [];
+      state.tasks = [];
+      state.activeTask = null;
+      return seedData();
+    }).then(function () {
+      refreshAll();
+      toast("已重置为示例数据");
+    });
+  }
+
+  /* ================= 抽屉 ================= */
+  function openDrawer(id) {
+    state.drawerId = id;
+    renderDrawer();
+    $("mask").classList.add("show");
+    $("drawer").classList.add("show");
+  }
+
+  function closeDrawer() {
+    state.drawerId = null;
+    $("mask").classList.remove("show");
+    $("drawer").classList.remove("show");
+  }
+
+  function saveDrawer() {
+    var l = findLead(state.drawerId);
+    if (!l) return;
+    var noteEl = $("dwNote");
+    var note = noteEl ? noteEl.value.trim() : l.note;
+    Store.updateLead(l.id, { follow: dwFollow, note: note }).then(function () {
+      toast("已保存跟进记录");
+      closeDrawer();
+      refreshAll();
+    });
+  }
+
+  /* ================= 导出 ================= */
+  function download(name, content, type) {
+    var blob = new Blob([content], { type: type || "text/plain;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function exportCsv() {
+    var rows = filteredLeads(), head = ["客户昵称", "来源平台", "评论内容", "行业", "意向等级", "意向分", "命中关键词", "采集关键词", "跟进状态", "备注", "采集时间", "批次"];
+    var csv = "\uFEFF" + head.join(",") + "\n", i;
+    function q(v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; }
+    for (i = 0; i < rows.length; i++) {
+      var l = rows[i];
+      csv += [l.name, l.platform, l.comment, l.industry, l.level, l.score, l.keywords, l.taskKw, l.follow, l.note, l.time, l.batch].map(q).join(",") + "\n";
+    }
+    download("意向客户_" + todayStr() + ".csv", csv, "text/csv;charset=utf-8");
+    toast("已导出 " + rows.length + " 条客户");
+  }
+
+  function exportJson() {
+    var data = { app: "线索雷达", exportedAt: fmtTime(new Date()), leads: state.leads, tasks: state.tasks };
+    download("线索雷达备份_" + todayStr() + ".json", JSON.stringify(data, null, 2), "application/json");
+    toast("备份已导出");
+  }
+
+  function importJson(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(String(reader.result));
+        var leads = Array.isArray(data) ? data : (data.leads || []);
+        var tasks = Array.isArray(data) ? [] : (data.tasks || []);
+        if (!leads.length) { toast("文件里没有客户数据"); return; }
+        var i;
+        for (i = 0; i < leads.length; i++) {
+          leads[i].id = leads[i].id || uid("L");
+          leads[i].follow = leads[i].follow || "待跟进";
+          state.leads.push(leads[i]);
+        }
+        for (i = 0; i < tasks.length; i++) { state.tasks.push(tasks[i]); }
+        Store.cacheLocal();
+        if (Store.mode === "cloud") {
+          var k = 0;
+          (function loopLead() {
+            if (k >= leads.length) return;
+            var l = leads[k++];
+            Store.addLead(l).then(loopLead);
+          })();
+        }
+        refreshAll();
+        toast("已导入 " + leads.length + " 条客户");
+      } catch (e) {
+        toast("解析失败，请确认是备份文件");
+      }
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
+  /* 导入采集器生成的 CSV（字段与导出一致） */
+  function importCsv(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var text = String(reader.result);
+        var lines = text.split(/\r?\n/);
+        if (!lines.length) { toast("文件为空"); return; }
+        var head = splitCsvLine(lines[0]);
+        var idx = {};
+        var cols = ["客户昵称", "来源平台", "评论内容", "行业分类", "意向等级", "意向分", "命中关键词", "采集关键词", "主页链接", "跟进状态", "备注", "采集时间", "批次"];
+        var i, j;
+        for (i = 0; i < cols.length; i++) {
+          var p = head.indexOf(cols[i]);
+          if (p > -1) idx[cols[i]] = p;
+        }
+        if (!("评论内容" in idx) || !("客户昵称" in idx)) { toast("CSV 缺少必要列（客户昵称/评论内容）"); return; }
+        var added = 0, seen = {};
+        for (i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          var cells = splitCsvLine(lines[i]);
+          function g(c) { return idx[c] != null ? (cells[idx[c]] || "") : ""; }
+          var key = g("客户昵称") + "|" + g("评论内容") + "|" + g("批次");
+          if (seen[key]) continue;
+          seen[key] = 1;
+          var lead = {
+            _t: "lead", id: uid("L"), _rid: "", name: g("客户昵称"),
+            platform: g("来源平台"), comment: g("评论内容"), industry: g("行业分类"),
+            level: g("意向等级") || (Number(g("意向分")) >= 75 ? "高" : (Number(g("意向分")) >= 55 ? "中" : "低")),
+            score: Number(g("意向分")) || 0, keywords: g("命中关键词"), taskKw: g("采集关键词"),
+            home: g("主页链接"), follow: g("跟进状态") || "待跟进", note: g("备注"),
+            time: g("采集时间") || todayStr() + " " + nowHm(), batch: g("批次") || ("B" + Date.now())
+          };
+          state.leads.push(lead); added++;
+        }
+        if (!added) { toast("没有可导入的新记录（可能已存在）"); return; }
+        Store.cacheLocal();
+        if (Store.mode === "cloud") {
+          (function loop(k) {
+            if (k >= state.leads.length) return;
+            var l = state.leads[k++];
+            if (!l._rid) Store.addLead(l).then(function () { loop(k); });
+            else loop(k);
+          })(state.leads.length - added);
+        }
+        refreshAll();
+        toast("已导入 " + added + " 条客户");
+      } catch (e) {
+        toast("CSV 解析失败，请确认格式");
+      }
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
+  /* ============ 去重合并：把重复线索合成一条 ============ */
+  function normTxt(s) {
+    return String(s || "").replace(/[\s\u3000,，。.!！?？~～、;；:：""''（）()\[\]【】<>《》\-—_+*#\/\\|]+/g, "").toLowerCase();
+  }
+
+  function splitSlash(s) {
+    var out = [];
+    String(s || "").replace(/,/g, "/").split("/").forEach(function (p) {
+      p = p.trim();
+      if (p) out.push(p);
+    });
+    return out;
+  }
+
+  /* 去重规则与采集端 dedupe.py 一致：
+     身份 = 平台 + (主页链接 | 昵称)，评论正文归一化后相同即视为重复。
+     合并时意向分取最高、状态取推进最远、时间取最早、批次/关键词合并。 */
+  function dedupeLeads() {
+    var groups = {}, order = [], i;
+    for (i = 0; i < state.leads.length; i++) {
+      var l = state.leads[i];
+      var ident = l.platform + "|" + (l.home ? "h:" + l.home : "n:" + normTxt(l.name));
+      var k = ident + "|" + normTxt(l.comment);
+      if (!groups[k]) { groups[k] = []; order.push(k); }
+      groups[k].push(l);
+    }
+
+    var keep = [], removeList = [], touched = [], merged = 0;
+    var RANK = { "待跟进": 0, "已联系": 1, "已加微": 2, "已成交": 3, "无效": -1 };
+
+    for (var oi = 0; oi < order.length; oi++) {
+      var g = groups[order[oi]];
+      if (g.length === 1) { keep.push(g[0]); continue; }
+
+      var main = g[0], m;
+      for (m = 1; m < g.length; m++) if ((g[m].score || 0) > (main.score || 0)) main = g[m];
+
+      var best = main.score || 0, bs = [], kw = [], times = [], nts = [];
+      var bestF = "待跟进", bestR = -99;
+      for (m = 0; m < g.length; m++) {
+        var x = g[m];
+        if ((x.score || 0) > best) best = x.score || 0;
+        splitSlash(x.batch).forEach(function (p) { if (bs.indexOf(p) < 0) bs.push(p); });
+        splitSlash(x.keywords).forEach(function (p) { if (kw.indexOf(p) < 0) kw.push(p); });
+        if (x.time) times.push(x.time);
+        if (x.note && nts.indexOf(x.note) < 0) nts.push(x.note);
+        var r = RANK[x.follow];
+        if (r == null) r = 0;
+        if (r > bestR) { bestR = r; bestF = x.follow || "待跟进"; }
+      }
+
+      var patch = {
+        score: best,
+        level: best >= 75 ? "高" : (best >= 55 ? "中" : "低"),
+        batch: bs.join(" / "),
+        keywords: kw.join(" / "),
+        follow: bestF,
+        note: nts.join("；")
+      };
+      if (times.length) { times.sort(); patch.time = times[0]; }
+      for (var kk in patch) if (patch.hasOwnProperty(kk)) main[kk] = patch[kk];
+
+      keep.push(main);
+      touched.push(main);
+      for (m = 0; m < g.length; m++) if (g[m] !== main) { removeList.push(g[m]); merged++; }
+    }
+
+    if (!removeList.length) { toast("没有发现重复线索，无需合并"); return; }
+
+    var oldLen = state.leads.length;
+    state.leads = keep;
+
+    if (Store.mode === "cloud" && Store.db) {
+      removeList.forEach(function (x) {
+        if (!x._rid) return;
+        Store.db.deleteRecord({ databaseId: "MjDdEbw22n8gTgFBOrPurw", recordId: x._rid }).catch(function () {});
+      });
+      touched.forEach(function (t) {
+        if (!t._rid) return;
+        Store.updateLead(t.id, {
+          follow: t.follow, note: t.note, score: t.score, level: t.level,
+          batch: t.batch, keywords: t.keywords, time: t.time
+        });
+      });
+    }
+
+    Store.cacheLocal();
+    refreshAll();
+    toast("已合并 " + merged + " 条重复线索（" + oldLen + " → " + keep.length + "）");
+  }
+
+  function splitCsvLine(line) {
+    var out = [], cur = "", q = false, i, ch;
+    for (i = 0; i < line.length; i++) {
+      ch = line[i];
+      if (q) {
+        if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+        else if (ch === '"') q = false;
+        else cur += ch;
+      } else {
+        if (ch === '"') q = true;
+        else if (ch === ",") { out.push(cur); cur = ""; }
+        else cur += ch;
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  /* ================= 事件绑定 ================= */
+  function bindEvents() {
+    $("brandHome").addEventListener("click", function () { goto("overview"); });
+
+    $("nav").addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest(".nav-item") : null;
+      if (btn) goto(btn.getAttribute("data-page"));
+    });
+
+    $("chips").addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest(".chip") : null;
+      if (!btn) return;
+      $("kwInput").value = btn.getAttribute("data-kw");
+      $("kwInput").focus();
+    });
+
+    $("collectBtn").addEventListener("click", function () { onCollect(); });
+    $("kwInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); onCollect(); }
+    });
+
+    var ar = $("agentRetry");
+    if (ar) {
+      ar.addEventListener("click", function () {
+        ar.disabled = true;
+        $("agentTxt").textContent = "正在检测本地采集器…";
+        $("agentDot").className = "agent-dot";
+        checkAgent().then(function (h) {
+          ar.disabled = false;
+          if (h && h.ok) toast("本地采集器已连接");
+          else toast("连不上，确认 start_agent.bat 窗口还开着");
+        });
+      });
+    }
+
+    $("todayList").addEventListener("click", function (e) {
+      var t = e.target;
+      var doneBtn = t.closest ? t.closest("[data-done]") : null;
+      if (doneBtn) {
+        var id = doneBtn.getAttribute("data-done");
+        Store.updateLead(id, { follow: "已联系" }).then(function () {
+          toast("已标记为「已联系」");
+          refreshAll();
+        });
+        return;
+      }
+      var openBtn = t.closest ? t.closest("[data-open]") : null;
+      if (openBtn) openDrawer(openBtn.getAttribute("data-open"));
+    });
+
+    $("taskRows").addEventListener("click", function (e) {
+      var row = e.target.closest ? e.target.closest("[data-task]") : null;
+      if (!row) return;
+      state.activeTask = row.getAttribute("data-task");
+      renderTaskDetail();
+      var d = $("taskDetail");
+      if (d) d.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    $("taskDetail").addEventListener("click", function (e) {
+      var closeBtn = e.target.closest ? e.target.closest("#taskClose") : null;
+      if (closeBtn) { state.activeTask = null; renderTaskDetail(); return; }
+      var openBtn = e.target.closest ? e.target.closest("[data-open]") : null;
+      if (openBtn) openDrawer(openBtn.getAttribute("data-open"));
+    });
+
+    $("industryTabs").addEventListener("click", function (e) {
+      var tab = e.target.closest ? e.target.closest("[data-ind]") : null;
+      if (!tab) return;
+      state.filters.industry = tab.getAttribute("data-ind");
+      renderLeads();
+    });
+
+    $("leadRows").addEventListener("click", function (e) {
+      var row = e.target.closest ? e.target.closest("[data-open]") : null;
+      if (row) openDrawer(row.getAttribute("data-open"));
+    });
+
+    $("fPlatform").addEventListener("change", function (e) {
+      state.filters.platform = e.target.value; renderLeads();
+    });
+    $("fLevel").addEventListener("change", function (e) {
+      state.filters.level = e.target.value; renderLeads();
+    });
+    $("fFollow").addEventListener("change", function (e) {
+      state.filters.follow = e.target.value; renderLeads();
+    });
+
+    var st = null;
+    $("fSearch").addEventListener("input", function (e) {
+      var v = e.target.value.trim();
+      clearTimeout(st);
+      st = setTimeout(function () { state.filters.q = v; renderLeads(); }, 200);
+    });
+
+    $("chatBody").addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest("[data-goto]") : null;
+      if (btn) goto(btn.getAttribute("data-goto"));
+    });
+
+    /* ---------- 主题切换 ---------- */
+    var tt = $("themeToggle");
+    if (tt) tt.addEventListener("click", function () {
+      var cur = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", cur);
+      try { localStorage.setItem("wb_theme", cur); } catch (e) { /* 忽略 */ }
+      toast(cur === "light" ? "已切到日光模式" : "已切到作战舱模式");
+    });
+
+    /* ---------- 采集选项 ---------- */
+    var op = $("optProducts");
+    if (op) op.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-selprod]");
+      if (!b) return;
+      var name = b.getAttribute("data-selprod"), i = state.sel.products.indexOf(name);
+      if (i >= 0) state.sel.products.splice(i, 1);
+      else state.sel.products.push(name);
+      renderOpts();
+      var p = prodOfName(name);
+      if (p && state.sel.products.indexOf(name) >= 0 && !$("kwInput").value.trim()) {
+        $("kwInput").value = p.kws[0] || name;
+      }
+    });
+
+    var lp = $("optPlatforms");
+    if (lp) lp.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-selplat]");
+      if (!b) return;
+      var name = b.getAttribute("data-selplat");
+      if (P_STATUS[name] === "manual") { toast("视频号没有公开搜索接口，建议手工导入或私域转介"); return; }
+      var i = state.sel.platforms.indexOf(name);
+      if (i >= 0) state.sel.platforms.splice(i, 1);
+      else state.sel.platforms.push(name);
+      renderOpts();
+    });
+
+    var pg = $("platGuide");
+    if (pg) pg.addEventListener("click", function (e) {
+      var b = e.target.closest ? e.target.closest("[data-login]") : null;
+      if (b) loginPlatform(b.getAttribute("data-login"));
+    });
+
+    var rg = $("optRegion");
+    if (rg) rg.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-selreg]");
+      if (!b) return;
+      state.sel.region = b.getAttribute("data-selreg");
+      renderOpts();
+    });
+
+    /* ---------- 新筛选维度 ---------- */
+    var fr = $("fRegion");
+    if (fr) fr.addEventListener("change", function (e) { state.filters.region = e.target.value; renderLeads(); });
+    var fb = $("fBiz");
+    if (fb) fb.addEventListener("change", function (e) { state.filters.biz = e.target.value; renderLeads(); });
+
+    /* ---------- 全局轻交互：产品卡 / 关键词 / 复制 / 地域 / 渠道 ---------- */
+    document.addEventListener("click", function (e) {
+      var pr = e.target.closest("[data-prod]");
+      if (pr) { state.filters.industry = pr.getAttribute("data-prod"); goto("leads"); return; }
+      var kwg = e.target.closest("[data-kwgo]");
+      if (kwg) { $("kwInput").value = kwg.getAttribute("data-kwgo"); goto("collect"); return; }
+      var cp = e.target.closest("[data-copy]");
+      if (cp) { copyText(cp.getAttribute("data-copy")); return; }
+      var rc = e.target.closest("[data-region]");
+      if (rc) {
+        state.ui.region = rc.getAttribute("data-region");
+        renderRegionDetail(state.ui.region);
+        renderRegionTips();
+        var all = document.querySelectorAll("[data-region]");
+        for (var k = 0; k < all.length; k++) all[k].style.outline = "";
+        rc.style.outline = "2px solid var(--brand)";
+        return;
+      }
+      var pl = e.target.closest("[data-plat]");
+      if (pl) { state.filters.platform = pl.getAttribute("data-plat"); goto("leads"); return; }
+    });
+
+    var rd = $("regionDetail");
+    if (rd) rd.addEventListener("click", function (e) {
+      var o = e.target.closest("[data-open]");
+      if (o) openDrawer(o.getAttribute("data-open"));
+    });
+
+    var ap = $("agentPillBtn");
+    if (ap) ap.addEventListener("click", function (e) {
+      e.stopPropagation();
+      $("agentPillSub").textContent = "检测中…";
+      checkAgent().then(function (h) {
+        $("agentPillSub").textContent = h && h.ok ? "已连接 127.0.0.1:8765" : "未连接，双击 LineRadar.bat";
+      });
+    });
+
+    $("mask").addEventListener("click", closeDrawer);
+    $("dwClose").addEventListener("click", closeDrawer);
+    $("dwSave").addEventListener("click", saveDrawer);
+
+    $("dwNext").addEventListener("click", function () {
+      var l = findLead(state.drawerId);
+      if (!l) return;
+      dwFollow = l.follow === "待跟进" ? "已联系" : "已成单";
+      var chips = $("dwChips").querySelectorAll(".fchip"), i;
+      for (i = 0; i < chips.length; i++) {
+        chips[i].classList.toggle("on", chips[i].getAttribute("data-fw") === dwFollow);
+      }
+      saveDrawer();
+    });
+
+    $("drawer").addEventListener("click", function (e) {
+      var chip = e.target.closest ? e.target.closest("[data-fw]") : null;
+      if (!chip) return;
+      dwFollow = chip.getAttribute("data-fw");
+      var chips = $("dwChips").querySelectorAll(".fchip"), i;
+      for (i = 0; i < chips.length; i++) {
+        chips[i].classList.toggle("on", chips[i].getAttribute("data-fw") === dwFollow);
+      }
+    });
+
+    $("exportCsv").addEventListener("click", exportCsv);
+    $("exportJson").addEventListener("click", exportJson);
+    $("resetDemo").addEventListener("click", resetDemo);
+    $("importJson").addEventListener("click", function () { $("importFile").click(); });
+    $("importFile").addEventListener("change", function (e) {
+      if (e.target.files && e.target.files[0]) importJson(e.target.files[0]);
+      e.target.value = "";
+    });
+
+    $("importCsvBtn").addEventListener("click", function () { $("importCsvInput").click(); });
+    $("importCsvInput").addEventListener("change", function (e) {
+      if (e.target.files && e.target.files[0]) importCsv(e.target.files[0]);
+      e.target.value = "";
+    });
+    $("dedupeBtn").addEventListener("click", dedupeLeads);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && state.drawerId) closeDrawer();
+    });
+  }
+
+  /* ================= 初始化（固定顺序，只走一条链路） ================= */
+  function init() {
+    try {
+      var th = localStorage.getItem("wb_theme");
+      if (th) document.documentElement.setAttribute("data-theme", th);
+    } catch (e) { /* 忽略 */ }
+    bindEvents();
+    renderChatWelcome();
+    loadLoginState();
+    /* 探测本地采集器；连不上也不阻塞页面（只影响「开始采集」）。
+       连不上就每 5 秒重试，最多 24 次 —— 服务是随页面启动的，起来有几秒延迟。 */
+    var agentRetry = 0;
+    function probeAgent() {
+      checkAgent().then(function (h) {
+        if (!h && agentRetry < 24) {
+          agentRetry++;
+          setTimeout(probeAgent, 5000);
+        }
+      });
+    }
+    probeAgent();
+
+    Store.init()
+      .then(function () { return Store.load(); })
+      .then(function () {
+        if (!state.leads.length && !state.tasks.length) {
+          seedLocal();
+          toast("已载入示例商机（演示用，点「重置示例数据」可清空）");
+        }
+        refreshAll();
+      })
+      .catch(function (err) {
+        console.error("[init] 初始化失败", err);
+        state.leads = [];
+        state.tasks = [];
+        refreshAll();
+        toast("本地数据加载异常，已进入空数据模式");
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
