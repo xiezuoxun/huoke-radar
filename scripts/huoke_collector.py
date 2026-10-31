@@ -31,7 +31,7 @@ import datetime
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from intent import analyze  # noqa: E402
+from intent import analyze, is_relevant  # noqa: E402
 from dedupe import merge_rows  # noqa: E402
 
 PLATFORM_CN = {
@@ -212,12 +212,20 @@ def collect_browser(cfg):
 
 
 def build_rows(raw):
-    """对原始评论跑意向识别，组装成对齐工作台的 CSV 行。"""
+    """对原始评论跑意向识别，组装成对齐工作台的 CSV 行。
+
+    主题相关性过滤：仅保留命中意向词(HOT/SOFT)或行业词库的评论，
+    丢弃纯时间戳属地行、无关闲聊等噪音（避免「温州 靓号」搜索混入无关商机）。
+    """
     b = batch_id()
     rows = []
+    dropped = 0
     for r in raw:
         a = analyze(r.get("comment", ""), keyword=r.get("keyword", ""),
                     platform=r.get("platform", ""), name=r.get("name", ""))
+        if not is_relevant(a["comment"]):
+            dropped += 1
+            continue
         rows.append({
             "客户昵称": a["name"],
             "来源平台": a["platform"],
@@ -234,6 +242,8 @@ def build_rows(raw):
             "批次": b,
             "用户ID": r.get("uid", ""),
         })
+    if dropped:
+        print(f"[相关性过滤] 丢弃 {dropped} 条无关评论（未命中意向词/行业词库）")
     return rows, b
 
 

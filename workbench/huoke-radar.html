@@ -2016,11 +2016,9 @@ svg{display:block}
       var high = 0;
       for (i = 0; i < list.length; i++) {
         if (list[i].level === "高") high++;
-        if (t >= 2) {
-          /* 老批次留少量待跟进，形成「超 24h」待办 */
-          list[i].follow = (i % 3 === 0) ? "待跟进" : pick(["已联系", "已加微"]);
-          if (i % 7 === 0) list[i].follow = "已成单";
-        }
+        /* 示例数据不再伪造跟进状态：全部保持「待跟进」。
+           之前老批次会标成 已联系/已加微/已成单，导致首页转化漏斗出现虚假的
+           「已联系/已加微/已转化」数字——真实采集线索的跟进状态永远是「待跟进」。 */
         leads.push(list[i]);
       }
       tasks.push({
